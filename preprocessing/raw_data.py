@@ -144,7 +144,7 @@ class ExternalRawData:
                     print(f'삼성 {num}번 파일 로드')
                     
                     for name in sheet_names:
-                        df = pd.read_excel(xl, sheet_name=name, skiprows=1)
+                        df = xl.parse(sheet_name=name, skiprows=1)
                         result.append(df)
                     print(f'삼성 {num}번 파일 데이터프레임 생성')
         except Exception as e:
