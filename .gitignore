@@ -1,0 +1,15 @@
+**/__pycache__/
+
+/data/raw_data/
+
+/data/table/
+
+/result/
+
+/config.py
+
+/monthly.ipynb
+
+/monthly.py
+
+/temp.ipynb
