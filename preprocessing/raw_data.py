@@ -197,10 +197,10 @@ class ExternalRawData:
             'POLICY_ID'
         ]
         print('삼성 데이터 불러오는 중...')
-        ss = pd.read_parquet(r'data\table\samsung_raw.parquet', engine='pyarrow')
+        ss = pd.read_parquet(DATA_PATH['samsung_raw'], engine='pyarrow')
         ss = ss[['POLICY_ID', 'PAYMENT_ID', 'PRODUCT_ID']]
         print('토스 데이터 불러오는 중...')
-        ts = pd.read_parquet(r'data\table\toss_raw.parquet', engine='pyarrow')
+        ts = pd.read_parquet(DATA_PATH['toss_raw'], engine='pyarrow')
         ts = ts[['매출일', '주문번호', '결제상태']]
         
         print('삼성 / 토스 데이터 병합 중...')
