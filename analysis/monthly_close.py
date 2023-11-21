@@ -466,25 +466,38 @@ class UntactSolution:
     
     end : 정산 마감 기준일
     
-    비대면 데이터 산출
+    period_dic : 정산 기간 딕셔너리. {'2023-10':['2023-09-26', '2023-10-30']}
     
-    가입자 정보??
+    
     '''
-    def __init__(self, start: str, end: str):
-        self.assebled_function(start, end)
+    def __init__(self, period_dic: dict):
+        self.start = None
+        self.end = None
+        self.set_date(period_dic)
+        self.assebled_function(period_dic)
     
-    def assebled_function(self, start, end):
-        df = self.join_time(start, end)
+    def assebled_function(self, period_dic):
+        df = self.join_time()
+        df = self.add_join_close_month(df, period_dic)
         df = self.payment_status(df)
         df = self.ordering_columns(df)
         df = self.classify_payment(df)
         
         now = datetime.now().strftime('%Y%m%d')
-        df.to_excel(fr'result\유상 상품 비대면진단_{start}_{end}_{now}.xlsx')
+        df.to_excel(fr'result\유상 상품 비대면진단_{self.start}_{self.end}_{now}.xlsx')
         print('데이터 저장 완료')
         return df
     
-    def join_time(self, start: str, end: str):
+    def set_date(self, period_dic: dict):
+        i = 0
+        for _, item in period_dic.items():
+            if i == 0:
+                self.start = item[0]
+            if i == (len(period_dic) - 1):
+                self.end = item[1]
+            i += 1
+    
+    def join_time(self):
         '''
         가입 시점 계산
         
@@ -508,7 +521,7 @@ class UntactSolution:
         df['보험가입일'] = pd.to_datetime(df['보험가입일'], format='%Y-%m-%d')
         df['보험해지일'] = pd.to_datetime(df['보험해지일'], format='%Y-%m-%d')
         
-        df = df[(df['보험가입일'] >= start) & (df['보험가입일'] <= end)]
+        df = df[(df['보험가입일'] >= self.start) & (df['보험가입일'] <= self.end)]
 
         df['가입 시점'] = (df['보험가입일'] - df['최초통화일']).dt.days
         
@@ -517,31 +530,30 @@ class UntactSolution:
         
         df.reset_index(drop=True, inplace=True)
         df = df.drop('최초통화일', axis=1)
-        
-        ## 가입월 / 해지월 산출
-        print('가입월 및 해지월 컬럼 추가 중...')
-        df['가입월'] = df['보험가입일'].dt.strftime('%Y-%m')
-        df['해지월'] = df['보험해지일'].dt.strftime('%Y-%m')
-        
         return df
     
-    def payment_status(self, df):
-        '''
-        정산대상여부 산출
-        '''
-        print('정산 대상 여부 계산 중...')
-        df['보험해지일'] = pd.to_datetime(df['보험해지일'])
+    def add_join_close_month(self, df, period_dic: dict):
+        df['가입월'] = None
+        df['해지월'] = None
         
-        # 2023-10월까지 적용된 기준
-        # cond1 = df['보험가입일'].dt.year == df['보험해지일'].dt.year
-        # cond2 = df['보험가입일'].dt.month == df['보험해지일'].dt.month
-        # df['정산대상여부'] = np.where(cond1 & cond2, '당월해지', '정산대상')
-        
-        # 새로운 적용 기준
-        condition = (df['해지월'].notnull() | df['해지월'].notna())
-        df['정산대상여부'] = np.where(condition, '당월해지', '정산대상')
-        
+        for key, item in period_dic.items():
+            cond_start = (df['보험가입일'] >= item[0])
+            cond_end = (df['보험가입일'] <= item[1])
+            df.loc[df[(cond_start & cond_end)].index, '가입월'] = key
+            
+            cond_start = (df['보험해지일'] >= item[0])
+            cond_end = (df['보험해지일'] <= item[1])
+            df.loc[df[(cond_start & cond_end)].index, '해지월'] = key
+            
         df['보험가입일'] = df['보험가입일'].dt.strftime('%Y-%m-%d')
+        df['보험해지일'] = df['보험해지일'].dt.strftime('%Y-%m-%d')
+        return df
+
+        
+    def payment_status(self, df):
+        print('정산 대상 여부 계산 중...')
+        cond1 = (df['가입월'] == df['해지월'])
+        df['정산대상여부'] = np.where(cond1, '당월해지', '정산대상')
         return df
     
     def ordering_columns(self, df):
@@ -553,8 +565,8 @@ class UntactSolution:
         print('컬럼 조정 중...')
         df = df.rename(columns=untact_column)
         col = list(untact_column.values())
-        df = df[col]
-        df = df.set_index('PROGRAM_CODE', drop=True)
+        # df = df[col]
+        # df = df.set_index('PROGRAM_CODE', drop=True)
         return df
     
     def classify_payment(self, df):
