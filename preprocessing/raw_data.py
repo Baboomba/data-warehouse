@@ -25,95 +25,74 @@ def transform_data(dir, file_type: str='csv'):
     
     result = pd.concat(result)
     return result
-        
 
 
 class MemberData:
-    def __init__(self):
-        self.member_dir = DATA_DIR['member_list']
-        self.member_path = DATA_PATH['member_list']
-        self.member_close_dir = DATA_DIR['member_close']
-        self.member_close_path = DATA_PATH['member_close']
+    def __init__(self, close: bool=False):
+        MemberData.MergeFiles(close)
     
-    def concat_files(self, type_check: bool, close_file: bool):
-        '''
-        csv 파일을 하나로 합침
+    class MergeFiles:
+        def __init__(self, close: bool=False):
+            self.close = close
+            self.files = self.list_files()
+            self.dataframe = []
+            self.size = []
+            self.diff = 0
+            self.produce_result()
         
-        Parameter
-        ---
-        type_check : 파일의 타입 일치 여부 확인
-        
-        close_file : 가입자 파일 혹은 마감 파일 여부 확인
-        '''
-        result = []
-        row_size = []
-        
-        dir = self.member_dir
-        path = self.member_path
-        
-        # 병합 파일 결정
-        if close_file:
-            dir = self.member_close_dir
-            path = self.member_close_path
-        
-        files = os.listdir(dir)
-        
-        # 데이터 추출        
-        for num, file in enumerate(files):
-            df = pd.read_csv(fr'{dir}\{file}')
-            df['IMEI'] = df['IMEI'].astype(str)
-            result.append(df)
-            row_size.append(df.shape[0])
-            print(f'가입자 파일 {num}번 생성')
-            print(f'가입자 파일 {num}번 파일 크기 : {df.shape[0]}')
-        
-        # 타입 체크
-        if type_check:
-            self.check_type_member_list(result)
-        
-        # 파일 병합
-        print(f'병합 전 총 회원수 : {sum(row_size)}명')
-        result = pd.concat(result)
-        result.reset_index(drop=True, inplace=True)
-        print(f'병합 후 총 회원수 : {result.shape[0]}명')
-        
-        # 테스트 유저 삭제
-        if not close_file:
-            index = result[result['이름'].isin(['테스트'])].index
-            result.drop(index=index, inplace=True)
-            print('테스트 유저 삭제')
-        
-        if close_file:
-            if (sum(row_size)) == int(result.shape[0]):
-                print('병합 후 가입자 수 이상 없음')
-                result.to_parquet(path)
-                print('가입자 파일 저장 완료')
+        def list_files(self):
+            if self.close:
+                return os.listdir(DATA_DIR['member_close'])
             else:
-                print('가입자 파일 병합 오류')
-        else:
-            if (sum(row_size) - 4) == int(result.shape[0]):
-                print('병합 후 가입자 수 이상 없음')
-                result.to_parquet(path)
-                print('가입자 파일 저장 완료')
+                return os.listdir(DATA_DIR['member_list'])
+            
+        def read_files(self):
+            if self.close:
+                dir = DATA_DIR['member_close']
             else:
-                print('가입자 파일 병합 오류')
-
-    
-    def check_type_member_list(self, df_list: list):
-        '''
-        가입자 파일 타입 검사
+                dir = DATA_DIR['member_list']
+            
+            for num, file in enumerate(self.files):
+                df = pd.read_csv(fr'{dir}\{file}')
+                self.dataframe.append(df)
+                self.size.append(int(df.shape[0]))
+                print(f'가입자 파일 {num}번 생성')
+                print(f'가입자 파일 {num}번 파일 크기 : {df.shape[0]}')
+            return self
         
-        데이터프레임으로 타입 검사 실행
-        '''
-        df_type = df_list[0].dtypes
+        def concat(self):
+            self.dataframe = pd.concat(self.dataframe).reset_index(drop=True)
+            return self
         
-        for num in range(1, len(df_list)):
-            if df_type.equals(df_list[num].dtypes):
-                print(f'가입자 {num}번 파일 타입 일치')
+        def alter_type(self):
+            self.dataframe['IMEI'] = self.dataframe['IMEI'].astype(str)
+            return self
+        
+        def delete_test_user(self):
+            if self.close:
+                pass
+            
+            condition = self.dataframe['이름'].isin(['테스트'])
+            index = self.dataframe[condition].index
+            self.dataframe.drop(index=index, inplace=True)
+            self.diff = len(index)
+            return self
+        
+        def verify_sum(self):
+            if (sum(self.size) - self.diff) != int(self.dataframe.shape[0]):
+                raise ValueError('The size after processing has been different.')
+            return self
+        
+        def save(self):
+            if self.close:
+                self.dataframe.to_parquet(DATA_PATH['member_close'])
             else:
-                print(f'ERROR!!! 가입자 {num}번 파일 타입 불일치!!!')
-
-    def folable5_count(self) -> None:
+                self.dataframe.to_parquet(DATA_PATH['member_list'])
+        
+        def produce_result(self):
+            self.read_files().concat().alter_type().delete_test_user().verify_sum().save()
+ 
+    def count_folable5(self) -> None:
         df = pd.read_excel(r'data\raw_data\etc\폴더블5가입자.xlsx')
         df.to_parquet(r'data\table\folable_join.parquet')
 
