@@ -462,31 +462,36 @@ class UntactSolution:
     '''
     Parameter
     ---
-    start : 정산 시작 기준일
+    period_dic : 정산 기간 딕셔너리.
+    >>> date_dic = {'2023-10':['2023-09-26', '2023-10-30']}
+    save : 결과 엑셀 저장 / default = False
     
-    end : 정산 마감 기준일
-    
-    period_dic : 정산 기간 딕셔너리. {'2023-10':['2023-09-26', '2023-10-30']}
-    
-    
+    Atrribute
+    ---
+    result : 결과 데이터프레임 | start : 정산 시작 기준일 | end : 정산 마감 기준일
     '''
-    def __init__(self, period_dic: dict):
-        self.start = None
-        self.end = None
-        self.set_date(period_dic)
-        self.assebled_function(period_dic)
+    def __init__(self, period_dic: dict, save: bool=False):
+        self.result = self.assebled_function(period_dic)
+        self.save(self.result, save)
     
     def assebled_function(self, period_dic):
-        df = self.join_time()
-        df = self.add_join_close_month(df, period_dic)
-        df = self.payment_status(df)
-        df = self.ordering_columns(df)
+        self.set_date(period_dic)
+        solution = UntactSolution.JoinTime(self.start, self.end)
+        df = solution.dataframe
+        period = UntactSolution.PeriodAdjustment(df, period_dic)
+        df = period.dataframe
+        df = self.add_target_column(df)
+        df = self.select_columns(df)
         df = self.classify_payment(df)
+        return self.untactsolution_only(df)
         
-        now = datetime.now().strftime('%Y%m%d')
-        df.to_excel(fr'result\유상 상품 비대면진단_{self.start}_{self.end}_{now}.xlsx')
-        print('데이터 저장 완료')
-        return df
+    
+    def save(self, df, save: bool) -> None:
+        if save:
+            now = datetime.now().strftime('%Y%m%d')
+            df.to_excel(fr'result\유상 상품 비대면진단_{self.start}_{self.end}_{now}.xlsx')
+            print('데이터 저장 완료')
+        
     
     def set_date(self, period_dic: dict):
         i = 0
@@ -497,89 +502,95 @@ class UntactSolution:
                 self.end = item[1]
             i += 1
     
-    def join_time(self):
+    class JoinTime:
         '''
         가입 시점 계산
         
         보험가입일 - 최초통화일 <= 2  --> 3일 이내
         
         보험가입일 - 최초통화일 >= 3  --> 최초통화일+2일 이후
-        
-        join_date
-        ---
-        보험가입일(str)
-        
-        call_date
-        ---
-        최초통화일(str)
         '''
-        print('회원정보 데이터 불러오는 중...')
-        df = pd.read_parquet(DATA_PATH['member_list'])
+        def __init__(self, start: str, end: str):
+            self.cols = ['최초통화일', '보험가입일', '보험해지일']
+            self.dataframe = self.read_data()
+            self.produce_result(start, end)
         
-        print('가입 시점 계산 중...')
-        df['최초통화일'] = pd.to_datetime(df['최초통화일'], format='%Y-%m-%d')
-        df['보험가입일'] = pd.to_datetime(df['보험가입일'], format='%Y-%m-%d')
-        df['보험해지일'] = pd.to_datetime(df['보험해지일'], format='%Y-%m-%d')
+        def read_data(self):
+            return pd.read_parquet(DATA_PATH['member_list'])
         
-        df = df[(df['보험가입일'] >= self.start) & (df['보험가입일'] <= self.end)]
-
-        df['가입 시점'] = (df['보험가입일'] - df['최초통화일']).dt.days
+        def alter_type(self):
+            for col in self.cols:
+                self.dataframe[col] = pd.to_datetime(self.dataframe[col], format='%Y-%m-%d')
+            return self
         
-        condition = (df['가입 시점'] <= 2)
-        df['가입 시점'] = np.where(condition, '3일 이내', '최초통화일+2일 이후')
+        def select_data(self, start: str, end: str):
+            cond_1 = (self.dataframe['보험가입일'] >= start)
+            cond_2 = (self.dataframe['보험가입일'] <= end)
+            self.dataframe = self.dataframe[cond_1 & cond_2]
+            return self
         
-        df.reset_index(drop=True, inplace=True)
-        df = df.drop('최초통화일', axis=1)
-        return df
+        def add_timing(self):
+            self.dataframe['가입 시점'] = (self.dataframe['보험가입일'] - self.dataframe['최초통화일']).dt.days
+            return self
+        
+        def categorize_timing(self):
+            condition = (self.dataframe['가입 시점'] <= 2)
+            self.dataframe['가입 시점'] = np.where(condition, '3일 이내', '최초통화일+2일 이후')
+            return self
+        
+        def adjust_dataframe(self):
+            self.dataframe.reset_index(drop=True, inplace=True)
+            self.dataframe.drop('최초통화일', axis=1, inplace=True)
+            return self
+        
+        def produce_result(self, start, end):
+            self.alter_type().select_data(start, end).add_timing().categorize_timing().adjust_dataframe()
     
-    def add_join_close_month(self, df, period_dic: dict):
-        df['가입월'] = None
-        df['해지월'] = None
+    class PeriodAdjustment:
+        def __init__(self, dataframe, period_dic: dict):
+            self.cols = {'보험가입일':'가입월', '보험해지일':'해지월'}
+            self.dataframe = dataframe
+            self.produce_result(period_dic)
         
-        for key, item in period_dic.items():
-            cond_start = (df['보험가입일'] >= item[0])
-            cond_end = (df['보험가입일'] <= item[1])
-            df.loc[df[(cond_start & cond_end)].index, '가입월'] = key
-            
-            cond_start = (df['보험해지일'] >= item[0])
-            cond_end = (df['보험해지일'] <= item[1])
-            df.loc[df[(cond_start & cond_end)].index, '해지월'] = key
-            
-        df['보험가입일'] = df['보험가입일'].dt.strftime('%Y-%m-%d')
-        df['보험해지일'] = df['보험해지일'].dt.strftime('%Y-%m-%d')
-        return df
-
+        def add_columns(self):
+            self.dataframe[['가입월', '해지월']] = None
+            return self
         
-    def payment_status(self, df):
+        def adjust_period(self, period_dic: dict):
+            for key, item in period_dic.items():
+                for day, month in self.cols.items():
+                    cond_start = (self.dataframe[day] >= item[0])
+                    cond_end = (self.dataframe[day] <= item[1])
+                    self.dataframe.loc[self.dataframe[(cond_start & cond_end)].index, month] = key
+            return self
+                
+        def alter_type(self):
+            for col in self.cols:
+                self.dataframe[col] = self.dataframe[col].dt.strftime('%Y-%m-%d')
+            return self
+        
+        def produce_result(self, period_dic):
+            self.add_columns().adjust_period(period_dic).alter_type()
+        
+        
+    def add_target_column(self, df):
         print('정산 대상 여부 계산 중...')
         cond1 = (df['가입월'] == df['해지월'])
         df['정산대상여부'] = np.where(cond1, '당월해지', '정산대상')
         return df
     
-    def ordering_columns(self, df):
-        '''
-        결과 컬럼만 추출
-        
-        인덱스 삭제
-        '''
+    def select_columns(self, df):
         print('컬럼 조정 중...')
         df = df.rename(columns=untact_column)
         col = list(untact_column.values())
-        # df = df[col]
-        # df = df.set_index('PROGRAM_CODE', drop=True)
+        df = df[col]
+        df = df.set_index('PROGRAM_CODE', drop=True)
         return df
     
     def classify_payment(self, df):
-        '''
-        유무상 구분
-        
-        비대면솔루션 값만 추출
-        '''
-        print('유무상 구분 및 비대면솔루션 값 선별 중...')
-                
         condition = (df['상품 구분'] == 'Y')
         df['상품 구분'] = np.where(condition, '무상', '유상')
-                
-        df = df[df['상품 구분'] == '유상']
-        df = df[df['비대면솔루션 값'].notnull()]
-        return df
+        return df[df['상품 구분'] == '유상']
+    
+    def untactsolution_only(self, df):
+        return df[df['비대면솔루션 값'].notnull()]
