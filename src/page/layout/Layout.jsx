@@ -1,5 +1,6 @@
 import { Container, Row, Col } from "react-bootstrap";
 import './Layout.css';
+import { LoginForm } from "../login/Login";
 
 const Main = () => {
     return (
@@ -27,6 +28,7 @@ const Login = () => {
             <Container fluid>
                 <Row className="login-grid-full">
                     <Col xxl={3} className="login-grid-center">
+                        <LoginForm></LoginForm>
                     </Col>
                 </Row>
             </Container>

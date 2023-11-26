@@ -1,0 +1,33 @@
+.loginform-bg {
+    height: 85%;
+    width: 85%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.inputform-bg {
+    width: 100%;
+    padding: 30px 0 10px 0;
+}
+
+.container-memorize {
+    margin: 10px 0 10px 10px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    width: 100%;
+}
+
+.label-memorize {
+    padding-left: 10px;
+}
+
+.loginbtn-bg {
+    padding: 10px 0 10px;
+    width: 100%;
+}
+
+.login-btn {
+    width: 100%;
+}

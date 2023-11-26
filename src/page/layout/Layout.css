@@ -34,6 +34,11 @@
 }
 
 .login-grid-center {
-    height: 400px;
-    width: 300px;
+    height: 450px;
+    width: 400px;
+    border: 1px solid cornflowerblue;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
