@@ -1,0 +1,20 @@
+.main-grid-left {
+    height: 90vh;
+    width: 200px;
+}
+
+.main-grid-right {
+    height: 90vh;
+}
+
+.main-grid-header {
+    height: 50px;
+}
+
+.main-grid-content {
+    height: calc(100% - 50px);
+}
+
+.main-grid-footer {
+    height: 10vh;
+}
