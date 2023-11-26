@@ -24,8 +24,11 @@ const Main = () => {
 const Login = () => {
     return (
         <div>
-            <Container>
-
+            <Container fluid>
+                <Row className="login-grid-full">
+                    <Col xxl={3} className="login-grid-center">
+                    </Col>
+                </Row>
             </Container>
         </div>
     );

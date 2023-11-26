@@ -1,3 +1,9 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+/* main layout */
 .main-grid-left {
     height: 90vh;
     width: 200px;
@@ -17,4 +23,17 @@
 
 .main-grid-footer {
     height: 10vh;
+}
+
+
+/* login layout */
+.login-grid-full {
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-grid-center {
+    height: 400px;
+    width: 300px;
 }
