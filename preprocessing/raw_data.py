@@ -139,7 +139,7 @@ class ExternalRawData:
         
         def read_data(self):
             file = os.listdir(DATA_DIR['toss'])
-            return pd.read_excel(fr'{DATA_DIR["toss"]}\{file}')
+            return pd.read_excel(fr'{DATA_DIR["toss"]}\{file[0]}')
         
         def add_to_previous(self, add_to_previous):
             if add_to_previous:
@@ -185,8 +185,18 @@ class ExternalRawData:
             return pd.merge(ts, ss, left_on='주문번호', right_on='PAYMENT_ID', how='left')
         
         def adjust(self):
-            self.dataframe.drop(columns='PAYMENT_ID', inplace=True)
-            self.dataframe.drop_duplicates(inplace=True)
+            try:
+                self.dataframe.drop(columns='PAYMENT_ID', inplace=True)
+            except Exception as e:
+                print(e)
+                pass
+            finally:
+                self.dataframe.drop_duplicates(inplace=True)
+                self.dataframe.reset_index(drop=True, inplace=True)
+            return self
+        
+        def format_date(self):
+            self.dataframe['매출일'] = pd.to_datetime(self.dataframe['매출일'], format='%Y-%m-%d')
             return self
         
         def select_columns(self):
@@ -204,7 +214,7 @@ class ExternalRawData:
                 self.dataframe.to_parquet(DATA_PATH['toss_payment'])
         
         def result(self, save, add_to_previous):
-            self.select_columns().add_to_previous(add_to_previous).adjust().save(save)
+            self.adjust().format_date().select_columns().add_to_previous(add_to_previous).adjust().save(save)
        
     class Insurance:
         '''
