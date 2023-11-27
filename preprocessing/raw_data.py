@@ -5,18 +5,6 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import os
-import shutil
-
-
-def backup(func, path, save_name):
-    def wrapper(*args, **kwargs):
-        try:
-            dst_path = os.path.join(DATA_DIR['backup'], save_name)
-            shutil.copy(path, dst_path)
-        except FileNotFoundError as e:
-            print(e)
-        func(*args, **kwargs)
-    return wrapper
 
 
 class MemberData:
