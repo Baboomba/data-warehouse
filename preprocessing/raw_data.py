@@ -143,6 +143,33 @@ class ExternalRawData:
         def result(self, to_excel: bool, add_to_pre: bool):
             self.to_dataframe().concat().to_excel(to_excel).add_to_previous(add_to_pre)
     
+    class TossClose:
+        def __init__(self, add_to_previous: bool=False, align: bool=False, save: bool=False):
+            self.dataframe = self.read_data()
+            self.result(add_to_previous, align, save)
+        
+        def read_data(self):
+            file = os.listdir(DATA_DIR['toss'])
+            return pd.read_excel(fr'{DATA_DIR["toss"]}\{file}')
+        
+        def add_to_previous(self, add_to_previous):
+            if add_to_previous:
+                pre = pd.read_parquet(DATA_PATH['toss_raw'])
+                self.dataframe = pd.concat([pre, self.dataframe])
+            return self
+        
+        def align(self, align: bool=False):
+            if align:
+                self.dataframe.drop_duplicates(inplace=True)
+                self.dataframe.reset_index(drop=True, inplace=True)
+            return self
+        
+        def save(self, save: bool=False):
+            if save:
+                self.dataframe.to_parquet(DATA_PATH['toss_raw'])
+        
+        def result(self, add_to_previous, align, save):
+            self.add_to_previous(add_to_previous).align(align).save(save)
     
        
     def samsung_close(self):
