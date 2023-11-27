@@ -5,26 +5,18 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import os
+import shutil
 
 
-def transform_data(dir, file_type: str='csv'):
-    '''
-    디렉토리에 있는 파일을 읽어 하나의 데이터프레임 변환하여 합침
-    
-    file_type : xlsx, csv
-    '''
-    files = os.listdir(dir)
-    result = []
-    
-    for file in files:
-        if file_type == 'csv':
-            df = pd.read_csv(fr'{dir}\{file}')
-        else:
-            df = pd.read_excel(fr'{dir}\{file}')
-        result.append(df)
-    
-    result = pd.concat(result)
-    return result
+def backup(func, path, save_name):
+    def wrapper(*args, **kwargs):
+        try:
+            dst_path = os.path.join(DATA_DIR['backup'], save_name)
+            shutil.copy(path, dst_path)
+        except FileNotFoundError as e:
+            print(e)
+        func(*args, **kwargs)
+    return wrapper
 
 
 class MemberData:
@@ -105,6 +97,53 @@ class ExternalRawData:
         self.ts_dir = DATA_DIR['toss']
         self.ins_dir = DATA_DIR['insurance']
         
+    class SamsungClose:
+        def __init__(self, to_excel: bool=False, add_to_pre: bool=False):
+            self.files = self.read_files()
+            self.dataframe = []
+            self.result(to_excel, add_to_pre)
+        
+        def read_files(self):
+            return os.listdir(DATA_DIR['samsung'])
+        
+        def to_dataframe(self):
+            try:
+                for num, file in enumerate(self.files):
+                    file_path = fr'{DATA_DIR["samsung"]}\{file}'
+                    with pd.ExcelFile(file_path) as xl:
+                        print(f'the {num}th file of the raw data of Samsung has just been read.')
+                        sheet_names = xl.sheet_names
+                        
+                        for name in sheet_names:
+                            df = xl.parse(sheet_name=name, skiprows=1)
+                            self.dataframe.append(df)
+                        print(f'The dataframe of the {num}th file created')
+            except Exception as e:
+                print(e)
+            return self
+        
+        def concat(self):
+            self.dataframe = pd.concat(self.dataframe)
+            return self
+        
+        def to_excel(self, to_excel: bool):
+            if to_excel:
+                now = datetime.now().strftime('%Y%m%d')
+                self.dataframe.to_excel(fr'result\SC+ 무선데이터_{now}.xlsx')
+                print('삼성 데이터 엑셀 저장 완료')
+            return self
+        
+        def add_to_previous(self, add_to_pre: bool):
+            if add_to_pre:
+                pre = pd.read_parquet(DATA_PATH['samsung_raw'], engine='pyarrow')
+                result = pd.concat([pre, self.dataframe])
+                result.drop_duplicates(inplace=True)
+                result.reset_index(drop=True, inplace=True)
+            
+        def result(self, to_excel: bool, add_to_pre: bool):
+            self.to_dataframe().concat().to_excel(to_excel).add_to_previous(add_to_pre)
+    
+    
        
     def samsung_close(self):
         '''
