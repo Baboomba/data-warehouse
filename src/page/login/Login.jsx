@@ -10,19 +10,7 @@ const TopLabel = () => {
     );
 }
 
-const InputForm = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-
-    const handleEmailChange = (e) => {
-        setEmail(e.target.value);
-        console.log(e.target.value);
-    };
-    const handlePasswordChange = (e) => {
-        setPassword(e.target.value);
-        console.log(e.target.value);
-    }
-
+const InputForm = ({ onEmailChang, onPasswordChange }) => {
     return (
         <div className="inputform-bg">
             <Form.Floating className="mb-3">
@@ -30,8 +18,7 @@ const InputForm = () => {
                   id="floatingInputCustom"
                   type="email"
                   placeholder="name@example.com"
-                  value={email}
-                  onChange={handleEmailChange}
+                  onChange={onEmailChang}
                 />
                 <label htmlFor="floatingInputCustom">Email address</label>
             </Form.Floating>
@@ -40,8 +27,7 @@ const InputForm = () => {
                   id="floatingPasswordCustom"
                   type="password"
                   placeholder="Password"
-                  value={password}
-                  onChange={handlePasswordChange}
+                  onChange={onPasswordChange}
                 />
                 <label htmlFor="floatingPasswordCustom">Password</label>
             </Form.Floating>
@@ -62,13 +48,14 @@ const MemorizeInfo = () => {
     );
 };
 
-const SubmitBtn = () => {
+const SubmitBtn = ({ onLogin }) => {
     return (
         <div className="loginbtn-bg">
             <Button
               variant='primary'
               size="lg"
               className="login-btn"
+              onClick={onLogin}
             >
                 <label>로그인</label>
             </Button>
@@ -77,12 +64,49 @@ const SubmitBtn = () => {
 };
 
 const LoginForm = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleEmailChange = (e) => {
+        setEmail(e.target.value);
+        console.log(e.target.value);
+    };
+    const handlePasswordChange = (e) => {
+        setPassword(e.target.value);
+        console.log(e.target.value);
+    }
+
+    const handleLogin = async () => {
+        fetch('http://localhost:8000/api/login/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password,
+            })
+        })
+        .then(response => {
+            if(!response.ok) {
+                throw new Error('Login failed');
+            }
+            console.log('Login successful');
+            return response.json();
+        })
+        .catch(error => {
+            console.error('error during login', error);
+        });
+    };
+    
     return (
         <div className="loginform-bg">
             <TopLabel />
-            <InputForm />
+            <InputForm
+              onEmailChang={handleEmailChange}
+              onPasswordChange={handlePasswordChange} />
             <MemorizeInfo />
-            <SubmitBtn />
+            <SubmitBtn onLogin={handleLogin} />
         </div>
     );
 };
