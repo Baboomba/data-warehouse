@@ -79,11 +79,7 @@ class MemberData:
 
 class ExternalRawData:
     def __init__(self):
-        self.ts_table_path = DATA_PATH['toss_raw']
-        self.ss_table_path = DATA_PATH['samsung_raw']
-        self.ss_dir = DATA_DIR['samsung']
-        self.ts_dir = DATA_DIR['toss']
-        self.ins_dir = DATA_DIR['insurance']
+        pass
         
     class SamsungClose:
         def __init__(self, to_excel: bool=False, add_to_pre: bool=False, save: bool=False):
