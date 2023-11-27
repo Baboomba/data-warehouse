@@ -142,7 +142,7 @@ class ExternalRawData:
             
         def result(self, to_excel: bool, add_to_pre: bool):
             self.to_dataframe().concat().to_excel(to_excel).add_to_previous(add_to_pre)
-    
+
     class TossClose:
         def __init__(self, add_to_previous: bool=False, align: bool=False, save: bool=False):
             self.dataframe = self.read_data()
@@ -171,6 +171,50 @@ class ExternalRawData:
         def result(self, add_to_previous, align, save):
             self.add_to_previous(add_to_previous).align(align).save(save)
     
+    class MergedCloseData:
+        __col = [
+            '매출일',
+            '결제상태',
+            '주문번호',
+            'PRODUCT_ID',
+            'POLICY_ID'
+        ]
+        
+        def __init__(self, save: bool=False):
+            self.dataframe = self.merge()
+            self.result(save)
+        
+        def read_toss(self):
+            return pd.read_parquet(DATA_PATH['toss_raw'], engine='pyarrow')[['매출일', '주문번호', '결제상태']]
+        
+        def read_samsung(self):
+            return pd.read_parquet(DATA_PATH['samsung_raw'], engine='pyarrow')[['POLICY_ID', 'PAYMENT_ID', 'PRODUCT_ID']]
+        
+        def merge(self):
+            ss = self.read_samsung()
+            ts = self.read_toss()
+            return pd.merge(ts, ss, left_on='주문번호', right_on='PAYMENT_ID', how='left')
+        
+        def adjust(self):
+            self.dataframe.drop(columns='PAYMENT_ID', inplace=True)
+            self.dataframe.drop_duplicates(inplace=True)
+            return self
+        
+        def select_columns(self):
+            self.dataframe = self.dataframe[self.__col]
+            return self
+        
+        def add_to_previous(self):
+            pre = pd.read_parquet(DATA_PATH['toss_payment'])
+            self.dataframe = pd.concat([pre, self.dataframe])
+            return self
+        
+        def save(self, save: bool):
+            if save:
+                self.dataframe.to_parquet(DATA_PATH['toss_payment'])
+        
+        def result(self, save):
+            self.select_columns().add_to_previous().adjust().save(save)
        
     def samsung_close(self):
         '''
