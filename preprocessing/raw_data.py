@@ -98,10 +98,10 @@ class ExternalRawData:
         self.ins_dir = DATA_DIR['insurance']
         
     class SamsungClose:
-        def __init__(self, to_excel: bool=False, add_to_pre: bool=False):
+        def __init__(self, to_excel: bool=False, add_to_pre: bool=False, save: bool=False):
             self.files = self.read_files()
             self.dataframe = []
-            self.result(to_excel, add_to_pre)
+            self.result(to_excel, add_to_pre, save)
         
         def read_files(self):
             return os.listdir(DATA_DIR['samsung'])
@@ -136,12 +136,17 @@ class ExternalRawData:
         def add_to_previous(self, add_to_pre: bool):
             if add_to_pre:
                 pre = pd.read_parquet(DATA_PATH['samsung_raw'], engine='pyarrow')
-                result = pd.concat([pre, self.dataframe])
-                result.drop_duplicates(inplace=True)
-                result.reset_index(drop=True, inplace=True)
+                self.dataframe = pd.concat([pre, self.dataframe])
+                self.dataframe.drop_duplicates(inplace=True)
+                self.dataframe.reset_index(drop=True, inplace=True)
+            return self
+        
+        def save(self, save: bool):
+            if save:
+                self.dataframe.to_parquet(DATA_PATH['samsung_raw'])
             
-        def result(self, to_excel: bool, add_to_pre: bool):
-            self.to_dataframe().concat().to_excel(to_excel).add_to_previous(add_to_pre)
+        def result(self, to_excel: bool, add_to_pre: bool, save: bool):
+            self.to_dataframe().concat().to_excel(to_excel).add_to_previous(add_to_pre).save(save)
 
     class TossClose:
         def __init__(self, add_to_previous: bool=False, align: bool=False, save: bool=False):
@@ -180,9 +185,9 @@ class ExternalRawData:
             'POLICY_ID'
         ]
         
-        def __init__(self, save: bool=False):
+        def __init__(self, save: bool=False, add_to_previous: bool=False):
             self.dataframe = self.merge()
-            self.result(save)
+            self.result(save, add_to_previous)
         
         def read_toss(self):
             return pd.read_parquet(DATA_PATH['toss_raw'], engine='pyarrow')[['매출일', '주문번호', '결제상태']]
@@ -204,17 +209,18 @@ class ExternalRawData:
             self.dataframe = self.dataframe[self.__col]
             return self
         
-        def add_to_previous(self):
-            pre = pd.read_parquet(DATA_PATH['toss_payment'])
-            self.dataframe = pd.concat([pre, self.dataframe])
+        def add_to_previous(self, add_to_previous: bool):
+            if add_to_previous:
+                pre = pd.read_parquet(DATA_PATH['toss_payment'])
+                self.dataframe = pd.concat([pre, self.dataframe])
             return self
         
         def save(self, save: bool):
             if save:
                 self.dataframe.to_parquet(DATA_PATH['toss_payment'])
         
-        def result(self, save):
-            self.select_columns().add_to_previous().adjust().save(save)
+        def result(self, save, add_to_previous):
+            self.select_columns().add_to_previous(add_to_previous).adjust().save(save)
        
     class Insurance:
         '''
