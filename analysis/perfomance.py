@@ -183,11 +183,15 @@ class MonthlyJoin(MainIndex):
         right_on = ['보험해지월', '프로모션유무', 'active', '미납여부']
         suffixes = ['가입', '해지']
         mg = pd.merge(join, cancel, left_on=left_on, right_on=right_on, how='left', suffixes=suffixes)
+        mg['년'] = mg['보험가입월'].str[:4] + '년'
+        mg['월'] = mg['보험가입월'].str[5:].astype(int).astype(str) + '월'
         print('신규/해지 고객 그룹화 테이블 생성')
         return mg
     
     def monthly_product_table(self):
         product = pd.DataFrame(self.table.groupby(self.product_group)['상품정보'].count()).reset_index()
+        product['년'] = product['보험가입월'].str[:4] + '년'
+        product['월'] = product['보험가입월'].str[5:].astype(int).astype(str) + '월'
         print('상품별 그룹화 테이블 생성')
         return product
     
