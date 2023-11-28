@@ -14,21 +14,11 @@ import pandas as pd
 
 class PaidProductClose:
     '''
-    유상 마감 연산 클래스로 ExternalRawData 상속
+    유상 마감 연산 클래스
     
     PARAMETERS
     ---
-    save : 병합 파일 저장 여부(불리언)
-    
-    load : 삼성/토스 병합 파일 변수 저장 여부(불리언)
-    
-    save : 병합 파일 저장 여부(불리언)
-    
-    ss : 삼성 raw 파일 전처리 여부
-    
-    ts : 토스 raw 파일 전처리 여부
-    
-    pay : 결제 건수 산출 여부    
+    save : 병합 파일 엑셀 저장 여부
     '''
     
     ## 필요 없는 컬럼 제거 위해 설정
@@ -67,15 +57,12 @@ class PaidProductClose:
         # self.pivot_dic = self.create_result(self.dataframe)  # 엑셀 피벗으로 대체
         # self.save_files(save)   # 엑셀 피벗으로 대체 self.create_result() 위한 저장 함수
     
-    class ResultData:
-        def __init__(self, save: bool=False) -> None:
+    class BasicData:
+        def __init__(self) -> None:
             self.data = self.read_data()
-            self.dataframe = None
-            self.result()
-            self.save(save)
         
         def read_data(self):
-            ss_col = [
+            _ss_col = [
                 'PAYMENT_ID',
                 'PACK_CODE',
                 'INSURANCE_COMPANY_CODE',
@@ -83,7 +70,7 @@ class PaidProductClose:
                 'POLICY_ID'
             ]
             
-            ts_col = [
+            _ts_col = [
                 '상점아이디(MID)',
                 '정산액 입금일',
                 '매출일',
@@ -95,7 +82,7 @@ class PaidProductClose:
                 '당일 정산액 (C) = (A-B)'
             ]
             
-            cate_col = [
+            _cate_col = [
                 '상품정보',
                 '제품군_2',
                 '제품시리즈',
@@ -104,47 +91,60 @@ class PaidProductClose:
                 '유무상'
             ]
             
-            ts = pd.read_parquet(DATA_PATH['toss_raw'])[ts_col]
-            ss = pd.read_parquet(DATA_PATH['samsung_raw'])[ss_col]
-            cate = pd.read_parquet(DATA_PATH['program_category'])[cate_col]
-            
-            # add property of number to compare the merged data
-            self.cnt_ts = int(ts.shape[0])
+            ts = pd.read_parquet(DATA_PATH['toss_raw'])[_ts_col]
+            ss = pd.read_parquet(DATA_PATH['samsung_raw'])[_ss_col]
+            cate = pd.read_parquet(DATA_PATH['program_category'])[_cate_col]
             return [ts, ss, cate]
         
-        def merge(self):
+    class Merge(BasicData):
+        def __init__(self):
+            super().__init__()
+            self.merge_process()
+        
+        def samsung(self):
             self.dataframe = pd.merge(
-                left=self.data['ts'],
-                right=self.data['ss'],
+                left=self.data[0],
+                right=self.data[1],
                 left_on='주문번호',
                 right_on='PAYMENT_ID',
                 how='left'
             )
-            
+            return self
+        
+        def adjust(self):
+            self.dataframe.drop_duplicates(inplace=True)
+            self.dataframe.reset_index(drop=True, inplace=True)
+            return self
+        
+        def check_count(self):
+            if len(self.dataframe) != len(self.data[0]):
+                raise Exception('The number of dataframe is different after merging')
+            return self
+        
+        def category(self):
             self.dataframe = pd.merge(
                 left=self.dataframe,
-                right=self.data['cate'],
+                right=self.data[2],
                 left_on='PRODUCT_ID',
                 right_on='상품정보',
                 how='left'
             )
             return self
         
-        def adjust(self):
-            self.dataframe.drop_duplicates(inplace=True).reset_index(drop=True, inplace=True)
-            return self
-        
-        def check_count(self):
-            if int(self.dataframe.shape[0]) != self.cnt_ts:
-                raise Exception('The number of dataframe is different after merging')
-            return self
+        def merge_process(self):
+            self.samsung().adjust().check_count().category().adjust().check_count()
+                    
+    class ProcessAdditionalData(Merge):
+        def __init__(self, save: bool=False):
+            super().__init__()
+            self.result(save)
         
         def alter_packcode(self):
             code = pd.DataFrame(case_transition)
             size = len(code)
 
             for num in range(size):
-                con1 = (self.dataframe['PACK_CODE'] == code['code_before'][num]) 
+                con1 = (self.dataframe['PACK_CODE'] == code['code_before'][num])
                 con2 = (self.dataframe['결제·취소액 (A)'] != code['price_before'][num])
                 condition = (con1 & con2)
                 self.dataframe.loc[condition, 'PACK_CODE'] = code['code_after'][num]        
@@ -161,28 +161,29 @@ class PaidProductClose:
             con2 = self.dataframe['PAYMENT_ID'].isna()
             con3 = (self.dataframe['결제상태'].nunique() == 2)
             
-            self.dataframe[con1 & con2 & con3].sort_values('주문번호', inplace=True)
-            self.dataframe.reset_index(drop=True, inplace=True)
+            dupl = self.dataframe[con1 & con2 & con3].sort_values('주문번호')
+            dupl.reset_index(inplace=True)
 
             _index = []
 
-            for num in range(int(self.dataframe.shape[0]) - 1):
-                if self.dataframe.loc[num, '주문번호'] != self.dataframe.loc[num + 1, '주문번호']:
+            for num in range(len(dupl) - 1):
+                if dupl.loc[num, '주문번호'] != dupl.loc[num + 1, '주문번호']:
                     pass
                 else:
-                    if (self.dataframe.loc[num, '결제·취소액 (A)'] != 0) and (self.dataframe.loc[num + 1, '결제·취소액 (A)'] != 0):
-                        if (self.dataframe.loc[num, '결제·취소액 (A)'] + self.dataframe.loc[num + 1, '결제·취소액 (A)']) == 0:
-                            _index.append(self.dataframe.loc[num, 'index'])
-                            _index.append(self.dataframe.loc[num + 1, 'index'])
+                    if (dupl.loc[num, '결제·취소액 (A)'] != 0) and (dupl.loc[num + 1, '결제·취소액 (A)'] != 0):
+                        if (dupl.loc[num, '결제·취소액 (A)'] + dupl.loc[num + 1, '결제·취소액 (A)']) == 0:
+                            _index.append(dupl.loc[num, 'index'])
+                            _index.append(dupl.loc[num + 1, 'index'])
                         
             print(f'상계 건 : {len(_index)}건')
 
             for idx in _index:
                 self.dataframe.loc[idx, 'PACK_CODE'] = '`+-완료'
                 print(f'인덱스 {idx}번 상계 처리')
+                
             return self
         
-        def pre_payment_merge(self):
+        def previous_payment(self):
             '''
             전월 토스 결제건 처리
             '''
@@ -202,13 +203,18 @@ class PaidProductClose:
             print('전월 토스 결제 처리 완료')
             return self
         
+        def drop_columns(self):
+            self.dataframe.drop(columns='PAYMENT_ID', inplace=True)
+            self.dataframe.drop(columns='상품정보', inplace=True)
+            return self
+        
         def save(self, save: bool):
             if save:
                 now = datetime.now().strftime('%Y%m%d')
                 self.dataframe.to_excel(fr'result\유상마감데이터_{now}.xlsx')
         
-        def result(self):
-            self.merge().adjust().check_count().alter_packcode().process_offset().pre_payment_merge()
+        def result(self, save):
+            self.alter_packcode().process_offset().previous_payment().drop_columns().save(save)
 
 
     def return_merged_table(self):
