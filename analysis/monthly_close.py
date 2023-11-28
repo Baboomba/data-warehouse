@@ -200,9 +200,10 @@ class PaidProductClose:
             print('전월 토스 결제 처리 완료')
             return self
         
-        def drop_columns(self):
+        def trim(self):
             self.dataframe.drop(columns='PAYMENT_ID', inplace=True)
             self.dataframe.drop(columns='상품정보', inplace=True)
+            self.dataframe.drop_duplicates(inplace=True)
             return self
         
         def save(self, save: bool):
@@ -211,7 +212,7 @@ class PaidProductClose:
                 self.dataframe.to_excel(fr'result\유상마감데이터_{now}.xlsx')
         
         def result(self, save):
-            self.alter_packcode().process_offset().previous_payment().drop_columns().save(save)
+            self.alter_packcode().process_offset().previous_payment().trim().save(save)
 
 
     def return_merged_table(self):
