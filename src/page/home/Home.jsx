@@ -1,5 +1,5 @@
 import { Container, Row, Col } from "react-bootstrap";
-import './Layout.css';
+import './Home.css';
 import { LoginForm } from "../login/Login";
 
 const Main = () => {
