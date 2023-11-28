@@ -516,7 +516,7 @@ class ConversionClassification:
     def correct_conversion(self):
         con = self.classify_timing()
         condition = ((con['유무상 구분'] == '전환') & (con['무상종료 전/후'] == '전'))
-        con['temp'] = np.where(condition, '무상', con['유무상 구분'])
+        con['유무상 구분'] = np.where(condition, '무상', con['유무상 구분'])
         return con
     
     def save_data(self, save: bool):
