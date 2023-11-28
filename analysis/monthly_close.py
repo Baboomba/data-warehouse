@@ -502,20 +502,20 @@ class ConversionClassification:
     
     def classify_timing(self):
         con = self.classify_payment()
-        con['무상종류 전/후'] = (con['접수날짜'] - con['무상 종료일']).dt.days
+        con['무상종료 전/후'] = (con['접수날짜'] - con['무상 종료일']).dt.days
         # condition to classify the time of the benefit
         conditions = [
-            con['무상종류 전/후'] > 0,
-            con['무상종류 전/후'] <= 0
+            con['무상종료 전/후'] > 0,
+            con['무상종료 전/후'] <= 0
         ]
         values = ['후', '전']
         
-        con['무상종류 전/후'] = np.select(conditions, values, None)
+        con['무상종료 전/후'] = np.select(conditions, values, None)
         return con
     
     def correct_conversion(self):
         con = self.classify_timing()
-        condition = ((con['유무상 구분'] == '전환') & (con['무상종류 전/후'] == '전'))
+        condition = ((con['유무상 구분'] == '전환') & (con['무상종료 전/후'] == '전'))
         con['temp'] = np.where(condition, '무상', con['유무상 구분'])
         return con
     
