@@ -1,6 +1,3 @@
-# import sys
-# sys.path.append()
-
 from config import DATA_PATH
 from data.columns import case_transition, untact_column
 from datetime import datetime
