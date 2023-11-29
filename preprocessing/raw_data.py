@@ -82,7 +82,7 @@ class ExternalRawData:
         pass
         
     class SamsungClose:
-        def __init__(self, to_excel: bool=False, add_to_pre: bool=False):
+        def __init__(self, to_excel: bool=False, add_to_pre: bool=False, save: bool=False):
             self.files = self.read_files()
             self.dataframe = []
             self.result(to_excel, add_to_pre)
@@ -124,9 +124,12 @@ class ExternalRawData:
                 self.dataframe.drop_duplicates(inplace=True)
                 self.dataframe.reset_index(drop=True, inplace=True)
             return self
+        
+        def save(self, save: bool):
+            self.dataframe.to_parquet(DATA_PATH['samsung_raw'])
             
-        def result(self, to_excel: bool, add_to_pre: bool):
-            self.to_dataframe().concat().to_excel(to_excel).add_to_previous(add_to_pre)
+        def result(self, to_excel: bool, add_to_pre: bool, save: bool):
+            self.to_dataframe().concat().to_excel(to_excel).add_to_previous(add_to_pre).save(save)
 
     class TossClose:
         def __init__(self, add_to_previous: bool=False, align: bool=False, save: bool=False):
