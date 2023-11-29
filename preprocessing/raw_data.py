@@ -50,7 +50,7 @@ class MemberData:
         
         def delete_test_user(self):
             if self.close:
-                pass
+                return self
             
             condition = self.dataframe['이름'].isin(['테스트'])
             index = self.dataframe[condition].index
