@@ -9,7 +9,7 @@ class BackUp:
     Parameter
     ---
     
-    file_name >>> refers the keys of DATA_PATH and BACKUP
+    file_name >>> refers the keys of DATA_PATH and BACKUP dictionary
     
     close_date >>> in the form like 20231030
     '''
