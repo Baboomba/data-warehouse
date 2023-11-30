@@ -33,9 +33,9 @@ class MemberData:
             else:
                 dir = DATA_DIR['member_list']
             
-            path = fr'{dir}\{file}'
-            
             for _, file in enumerate(self.files):
+                path = fr'{dir}\{file}'
+                
                 with open_workbook(path) as wb:
                     for sht in wb.sheets:
                         data = []
@@ -48,6 +48,7 @@ class MemberData:
                             data = data[1:]
                             temp = pd.DataFrame(data=data, columns=columns)
                             self.dataframe.append(temp)
+                            self.size.append(int(temp.shape[0]))
             return self
         
         def read_csv(self):
