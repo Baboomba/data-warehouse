@@ -4,6 +4,7 @@ from datetime import datetime
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+from pyxlsb import open_workbook
 import os
 
 
@@ -25,8 +26,31 @@ class MemberData:
                 return os.listdir(DATA_DIR['member_close'])
             else:
                 return os.listdir(DATA_DIR['member_list'])
+        
+        def read_xlsb(self):
+            if self.close:
+                dir = DATA_DIR['member_close']
+            else:
+                dir = DATA_DIR['member_list']
             
-        def read_files(self):
+            path = fr'{dir}\{file}'
+            
+            for _, file in enumerate(self.files):
+                with open_workbook(path) as wb:
+                    for sht in wb.sheets:
+                        data = []
+                        with wb.get_sheet(sht) as sheet:
+                            for row in sheet.rows():
+                                row_data = [cell.v for cell in row]
+                                data.append(row_data)
+                                
+                            columns = data[0]
+                            data = data[1:]
+                            temp = pd.DataFrame(data=data, columns=columns)
+                            self.dataframe.append(temp)
+            return self
+        
+        def read_csv(self):
             if self.close:
                 dir = DATA_DIR['member_close']
             else:
@@ -70,7 +94,7 @@ class MemberData:
                 self.dataframe.to_parquet(DATA_PATH['member_list'])
         
         def produce_result(self):
-            self.read_files().concat().alter_type().delete_test_user().verify_sum().save()
+            self.read_xlsb().concat().alter_type().delete_test_user().verify_sum().save()
  
     def count_folable5(self) -> None:
         df = pd.read_excel(r'data\raw_data\etc\폴더블5가입자.xlsx')
