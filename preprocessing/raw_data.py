@@ -85,7 +85,7 @@ class ExternalRawData:
         def __init__(self, to_excel: bool=False, add_to_pre: bool=False, save: bool=False):
             self.files = self.read_files()
             self.dataframe = []
-            self.result(to_excel, add_to_pre)
+            self.result(to_excel, add_to_pre, save)
         
         def read_files(self):
             return os.listdir(DATA_DIR['samsung'])
