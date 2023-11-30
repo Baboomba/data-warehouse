@@ -9,7 +9,7 @@ import pandas as pd
 
 
 
-class PaidProductClose:
+class PaidProductCount:
     '''
     유상 마감 연산 클래스
     
@@ -252,7 +252,6 @@ class PaidProductClose:
             
         return pivots
     
-    
     def save_files(self, save):
         '''
         추출된 데이터를 엑셀 파일로 저장
@@ -288,7 +287,6 @@ class PaidProductClose:
             wb.save(dir)
             print('데이터 저장 완료')
         
-    
     def cell_style(self, workbook):
         '''
         셀 병합 및 폰트 사이즈 조정
@@ -399,6 +397,48 @@ class ConversionClassification:
             df = self.correct_conversion()
             df.to_excel(r'result\보험금전환구분.xlsx')
     
+    
+class PromotionProductCount:
+    def __init__(self, save: bool=False):
+        self.dataframe = None
+        self.category = None
+        self.result(save)
+    
+    def filter_promotion(self):
+        self.dataframe = pd.read_parquet(DATA_PATH['member_close'])
+        return self
+    
+    def read_category(self):
+        return self
+    
+    def merge(self):
+        self.dataframe = pd.merge(
+            self.dataframe,
+            self.category,
+            on='상품정보',
+            how='left'
+        )
+        return self
+    
+    def groupby(self):
+        group = [
+            '보험사',
+            '무상제품',
+            '정산년도',
+            '보험상태'
+        ]
+        gr = self.dataframe.groupby(group)['POLICY_ID'].count()
+        self.dataframe = pd.DataFrame(gr).reset_index(drop=True)
+        self.dataframe.rename(columns={'POLICY_ID':'수량'}, inplace=True)
+        return self
+    
+    def save(self, save: bool):
+        if bool:
+            pass
+        pass
+    
+    def result(self, save):
+        self.read_category().merge().groupby().save(save)
 
 
 class PromotionClose:
@@ -465,10 +505,6 @@ class PromotionClose:
         now = datetime.now().strftime('%Y%m%d')
         self.data.to_excel(fr'result\무상상품마감_{now}.xlsx')
         return self
-    
-    
-
-
 
 
 
