@@ -17,37 +17,6 @@ class PaidProductCount:
     ---
     save : 병합 파일 엑셀 저장 여부
     '''
-    
-    ## 필요 없는 컬럼 제거 위해 설정
-    __ss_col = [
-            'PAYMENT_ID',
-            'PACK_CODE',
-            'INSURANCE_COMPANY_CODE',
-            'PRODUCT_ID',
-            'POLICY_ID'
-        ]
-        
-    __ts_col = [
-        '상점아이디(MID)',
-        '정산액 입금일',
-        '매출일',
-        '결제일',
-        '주문번호',
-        '결제상태',
-        '결제·취소액 (A)',
-        'PG수수료 (B)',
-        '당일 정산액 (C) = (A-B)'
-    ]
-    
-    __cate_col = [
-        '상품정보',
-        '제품군_2',
-        '제품시리즈',
-        '제품시리즈_2',
-        '보장타입',
-        '유무상'
-    ]
-    
     def __init__(self, save: bool):
         self.dataframe = self.return_merged_table()
         self.save_dataframe(save)
