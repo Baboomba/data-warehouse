@@ -208,15 +208,12 @@ class ExternalRawData:
             ts = self.read_toss()
             return pd.merge(ts, ss, left_on='주문번호', right_on='PAYMENT_ID', how='left')
         
-        def adjust(self):
-            try:
+        def adjust(self, drop: bool):
+            if drop:
                 self.dataframe.drop(columns='PAYMENT_ID', inplace=True)
-            except Exception as e:
-                print(e)
-                pass
-            finally:
-                self.dataframe.drop_duplicates(inplace=True)
-                self.dataframe.reset_index(drop=True, inplace=True)
+            
+            self.dataframe.drop_duplicates(inplace=True)
+            self.dataframe.reset_index(drop=True, inplace=True)
             return self
         
         def format_date(self):
@@ -238,7 +235,7 @@ class ExternalRawData:
                 self.dataframe.to_parquet(DATA_PATH['toss_payment'])
         
         def result(self, save, add_to_previous):
-            self.adjust().format_date().select_columns().add_to_previous(add_to_previous).adjust().save(save)
+            self.adjust(True).format_date().select_columns().add_to_previous(add_to_previous).adjust(False).save(save)
        
     class Insurance:
         '''
