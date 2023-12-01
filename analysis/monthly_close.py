@@ -17,11 +17,8 @@ class PaidProductCount:
     ---
     save : 병합 파일 엑셀 저장 여부
     '''
-    def __init__(self, save: bool):
-        self.dataframe = self.return_merged_table()
-        self.save_dataframe(save)
-        # self.pivot_dic = self.create_result(self.dataframe)  # 엑셀 피벗으로 대체
-        # self.save_files(save)   # 엑셀 피벗으로 대체 self.create_result() 위한 저장 함수
+    def __init__(self):
+        pass        
     
     class BasicData:
         def __init__(self) -> None:

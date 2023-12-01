@@ -201,7 +201,7 @@ class MonthlyJoin(MainIndex):
         return holding
     
     def payment_number_table(self):
-        close = PaidProductCount(False)
+        close = PaidProductCount.ProcessAdditionalData(False)
 
         # 당월 결제 수량
         pay_total = close.dataframe.groupby(['제품군_2', '보장타입', '유무상'])['주문번호'].count().reset_index()
