@@ -618,6 +618,9 @@ class UntactSolution:
 
 
 class Select14Days:
+    '''
+    비대면솔루션 결과에서 가입일 14일 이내 해지 건 추출
+    '''
     def __init__(self, save: bool, path: str):
         Select14Days.Classification(save, path)
         
