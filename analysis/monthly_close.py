@@ -615,3 +615,114 @@ class UntactSolution:
     
     def untactsolution_only(self, df):
         return df[df['비대면솔루션 값'].notnull()]
+
+
+class Select14Days:
+    def __init__(self, save: bool, path: str):
+        Select14Days.Classification(save, path)
+        
+    class BasicData:
+        def __init__(self) -> None:
+            self.result()
+        
+        def read(self, path):
+            self.data = pd.read_excel(path)
+            return self
+        
+        def filter_IMEI(self):
+            self.data['DESCRIPTION'] = self.data['DESCRIPTION'].str[19:-1]
+            return self
+
+        def add_class(self):
+            self.data['class'] = self.data['DESCRIPTION'].str.len()
+            return self
+        
+        def transform_class(self):
+            con = ((self.data['class'] == 15) | (self.data['class'] == 11))
+            self.data['class'] = np.where(con, self.data['class'], None)
+            return self
+        
+        def bridge(self):
+            self.data['IMEI'] = self.data['class']
+            self.data['S/N'] = self.data['class']
+            self.data.drop(columns='class', inplace=True)
+            return self
+        
+        def control_bridge(self):
+            self.data['IMEI'] = np.where(self.data['IMEI'] == 11, self.data['DESCRIPTION'], None)
+            self.data['S/N'] = np.where(self.data['S/N'] == 15, self.data['DESCRIPTION'], None)
+            return self
+        
+        def result(self, path):
+            self.read(path).filter_IMEI().add_class().transform_class().bridge().control_bridge()
+        
+    class Merge(BasicData):
+        def __init__(self) -> None:
+            super().__init__()
+            self.adjust()
+        
+        def read(self):
+            col = ['IMEI', '시리얼번호', '보험가입일', '보험해지일']
+            return pd.read_parquet(DATA_PATH['member_list'])[col]
+        
+        def adjust(self):
+            data = self.read()
+            data.rename(columns={'시리얼번호': 'S/N'}, inplace=True)
+            return data[(data['보험가입일'] >= '2023-11-01') & (data['보험가입일'] <='2023-11-30')]
+        
+        def subtables(self):
+            data = self.adjust()
+            sn = data[data['S/N'].notnull()]
+            sn.drop(columns='IMEI', inplace=True)
+            im = data[data['IMEI'].notnull()]
+            im.drop(columns='S/N', inplace=True)
+            return [sn, im]
+        
+        def merge_subs(self):
+            data = self.subtables()
+            mg1 = pd.merge(self.data, data[0], on='S/N', how='left')
+            mg2 = pd.merge(self.data, data[1], on='IMEI', how='left')
+            mg2 = mg2[['IMEI', '보험가입일', '보험해지일']]
+            return [mg1, mg2]
+        
+        def second_merge(self):
+            data = self.merge_subs()
+            mg = pd.merge(data[0], data[1], on='IMEI', how='left', suffixes=['sn', 'im'])
+            return mg[~(mg[['DATE (UTC)', 'S/N', 'IMEI']].duplicated())]
+        
+        def adjust(self):
+            data = self.second_merge()
+            con = data['보험가입일sn'].isna()
+            data['보험가입일sn'] = np.where(con, data['보험가입일im'], data['보험가입일sn'])
+            data.drop(columns=['보험가입일im', '보험해지일im'], inplace=True)
+            data.rename(columns={'보험가입일sn': '보험가입일', '보험해지일sn': '보험해지일'}, inplace=True)
+            data.reset_index(drop=True, inplace=True)
+            self.data = data
+        
+    class Classification(Merge):
+        def __init__(self, save: bool, path: str) -> None:
+            super().__init__()
+            self.result(save, path)
+        
+        def to_datetime(self):
+            cols = ['보험가입일', '보험해지일']
+            
+            for col in cols:
+                self.data[col] = pd.to_datetime(self.data[col], format='%Y-%m-%d')
+            return self
+        
+        def add_period(self):
+            self.data['가입일수'] = (self.data['보험해지일'] - self.data['보험가입일']).dt.days
+            return self
+        
+        def classify_target(self):
+            con = self.data['가입일수'] < 15
+            self.data['해지여부'] = np.where(con, '14일 이내 해지', np.nan())
+            return self
+        
+        def save(self, save: bool, path: str):
+            if save:
+                self.data.to_excel(path)
+        
+        def result(self, save, path):
+            self.to_datetime().add_period().classify_target().save(save, path)
