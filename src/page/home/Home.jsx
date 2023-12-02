@@ -7,16 +7,16 @@ const Main = () => {
         <div>
             <Container fluid>
                 <Row>
-                    <Col xxl={2} className="main-grid-left">
+                    <Col xxl={2} className="main-grid-left">Side Menu
                     </Col>
                     <Col className="main-grid-right">
-                        <Row className="main-grid-header">
+                        <Row className="main-grid-header">Main Header
                         </Row>
-                        <Row className="main-grid-content">
+                        <Row className="main-grid-content">Content
                         </Row>
                     </Col>
                 </Row>
-                <Row className="main-grid-footer"></Row>
+                <Row className="main-grid-footer">footer</Row>
             </Container>
         </div>
     );
