@@ -1,13 +1,16 @@
 import { Container, Row, Col } from "react-bootstrap";
 import './Home.css';
 import { LoginForm } from "../login/Login";
+import SideMenu from "../../component/sideMenu/SideMenu";
+
 
 const Main = () => {
     return (
         <div>
             <Container fluid>
                 <Row>
-                    <Col xxl={2} className="main-grid-left">Side Menu
+                    <Col xxl={2} className="main-grid-left">
+                        <SideMenu />
                     </Col>
                     <Col className="main-grid-right">
                         <Row className="main-grid-header">Main Header
