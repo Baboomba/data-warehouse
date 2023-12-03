@@ -1,0 +1,22 @@
+.side-menu-bg {
+    width: 200px;
+    height: 90vh;
+    position: fixed;
+}
+
+.main-menu-list {
+    overflow-y: scroll;
+    height: calc(90vh - 50px);
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 12px 12px 12px 12px;
+}
+
+.side-menu-bg:hover ::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 149, 237, 0.6);
+}

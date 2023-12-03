@@ -1,0 +1,8 @@
+.main-menu-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.main-menu-list-item {
+    padding: 3px;
+}

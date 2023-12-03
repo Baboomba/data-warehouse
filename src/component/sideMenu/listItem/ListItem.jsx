@@ -1,14 +1,21 @@
 import { useState } from "react";
 import { MENU_ITEM } from "../../../settings";
+import './ListItem.css';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-const SimpleItem = ({ menuname }) => {
+
+const SimpleItem = ({ menuitem }) => {
     return (
-        <label>{menuname}</label>
+        <label className="menu-items">
+            {MENU_ITEM[menuitem].icon}
+            <span className="item-text">{MENU_ITEM[menuitem].name}</span>
+        </label>
     );
 };
 
 
-const CollapseItem = ({ menuname }) => {
+const CollapseItem = ({ menuitem }) => {
     const [IsCollapsed, setIsCollapsed] = useState(false);
     
     const selectClassName = () => {
@@ -23,25 +30,23 @@ const CollapseItem = ({ menuname }) => {
         setIsCollapsed(!IsCollapsed);
     }
 
-    const condition = (item) => {
-        if (MENU_ITEM[item].collapse)
-        {
-            return MENU_ITEM[item].submenu.map(
-                sub => <li>{sub}</li>
-            )
-        }
-    };
-
     const handleListItem = () => {
-        const items = Object.keys(MENU_ITEM);
-        
-        return items.map(item => condition(item));
+        return MENU_ITEM[menuitem].submenu.map(
+                sub => <li className="submenu-items">{sub}</li>
+        )            
     };
 
     return (
         <div>
-            <label>{menuname}</label>
-            <ul className={selectClassName()} onClick={handleClick}>
+            <label onClick={handleClick} className="menu-items">
+                {MENU_ITEM[menuitem].icon}
+                <span className="item-text">{MENU_ITEM[menuitem].name}</span>
+                {IsCollapsed ?
+                  <KeyboardArrowUpIcon className="list-arrow" /> :
+                  <KeyboardArrowDownIcon className="list-arrow" />
+                }
+            </label>
+            <ul className={selectClassName()}>
                 {handleListItem()}
             </ul>
         </div>

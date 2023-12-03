@@ -7,6 +7,7 @@
 .main-grid-left {
     height: 90vh;
     width: 200px;
+    padding: 0;
 }
 
 .main-grid-right {
