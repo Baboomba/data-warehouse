@@ -255,7 +255,6 @@ class ExternalRawData:
         
         def process_insurance_data(self):
             files = os.listdir(self.dir)
-            df = None
             
             for file in files:
                 if '.csv' in file:

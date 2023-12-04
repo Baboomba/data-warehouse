@@ -174,5 +174,5 @@ insurance_schema = pa.schema([
             ('기준', pa.date32()),
             ('접수 날짜', pa.date32()),
             ('무상 종료일', pa.date32()),
-            ('무상종류 전/후', pa.string())
+            ('무상종료 전/후', pa.string())
         ])
