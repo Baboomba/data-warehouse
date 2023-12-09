@@ -6,7 +6,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 const MENU_ITEM = {
     item1 : {
-        name : 'BASIC DATA',
+        name : 'BASIC TABLE',
         icon : <TextSnippetIcon />,
         collapse : true,
         submenu : [

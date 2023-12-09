@@ -1,5 +1,6 @@
 import { Form, Button } from "react-bootstrap";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import './Login.css';
 
 const TopLabel = () => {
@@ -10,7 +11,7 @@ const TopLabel = () => {
     );
 }
 
-const InputForm = ({ onEmailChang, onPasswordChange }) => {
+const InputForm = ({ onEmailChange, onPasswordChange, onKeyDown }) => {
     return (
         <div className="inputform-bg">
             <Form.Floating className="mb-3">
@@ -18,7 +19,7 @@ const InputForm = ({ onEmailChang, onPasswordChange }) => {
                   id="floatingInputCustom"
                   type="email"
                   placeholder="name@example.com"
-                  onChange={onEmailChang}
+                  onChange={onEmailChange}
                 />
                 <label htmlFor="floatingInputCustom">Email address</label>
             </Form.Floating>
@@ -28,6 +29,7 @@ const InputForm = ({ onEmailChang, onPasswordChange }) => {
                   type="password"
                   placeholder="Password"
                   onChange={onPasswordChange}
+                  onKeyDown={onKeyDown}
                 />
                 <label htmlFor="floatingPasswordCustom">Password</label>
             </Form.Floating>
@@ -63,17 +65,25 @@ const SubmitBtn = ({ onLogin }) => {
     );
 };
 
+const RegisterLink = () => {
+    return (
+        <div className="register-link">
+            <Link to='/register'>
+                <label>회원가입</label>
+            </Link>
+        </div>
+    );
+};
+
 const LoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const handleEmailChange = (e) => {
         setEmail(e.target.value);
-        console.log(e.target.value);
     };
     const handlePasswordChange = (e) => {
         setPassword(e.target.value);
-        console.log(e.target.value);
     }
 
     const handleLogin = async () => {
@@ -98,15 +108,24 @@ const LoginForm = () => {
             console.error('error during login', error);
         });
     };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleLogin()
+        }
+    }
     
     return (
         <div className="loginform-bg">
             <TopLabel />
             <InputForm
-              onEmailChang={handleEmailChange}
-              onPasswordChange={handlePasswordChange} />
+              onEmailChange={handleEmailChange}
+              onPasswordChange={handlePasswordChange}
+              onKeyDown={handleKeyDown}
+            />
             <MemorizeInfo />
             <SubmitBtn onLogin={handleLogin} />
+            <RegisterLink />
         </div>
     );
 };

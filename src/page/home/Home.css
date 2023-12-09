@@ -27,14 +27,14 @@
 }
 
 
-/* login layout */
-.login-grid-full {
+/* login, and register layout */
+.login-grid-full, .register-grid-full {
     height: 100vh;
     justify-content: center;
     align-items: center;
 }
 
-.login-grid-center {
+.login-grid-center, .register-grid-center {
     height: 450px;
     width: 400px;
     border: 1px solid cornflowerblue;

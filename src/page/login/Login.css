@@ -31,3 +31,14 @@
 .login-btn {
     width: 100%;
 }
+
+.register-link {
+    display: flex;
+    width: 100%;
+    margin-top: 5px;
+    justify-content: right;
+}
+
+.register-link label:hover {
+    text-decoration: underline;
+}

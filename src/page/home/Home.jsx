@@ -2,6 +2,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import './Home.css';
 import { LoginForm } from "../login/Login";
 import SideMenu from "../../component/sideMenu/SideMenu";
+import { RegisterForm } from "../register/Register";
 
 
 const Main = () => {
@@ -39,4 +40,18 @@ const Login = () => {
     );
 };
 
-export { Main, Login };
+const Register = () => {
+    return (
+        <div>
+            <Container>
+                <Row className="register-grid-full">
+                    <Col xxl={3} className="register-grid-center">
+                        <RegisterForm></RegisterForm>
+                    </Col>
+                </Row>
+            </Container>
+        </div>
+    )
+}
+
+export { Main, Login, Register };
