@@ -28,14 +28,9 @@
     height: 100%;
 }
 
-.true-password-label {
-    color: transparent;
+.check-password-label {
+    color: red;
+    height: 20px;
     font-size: 13px;
     padding-bottom: 10px;
-}
-
-.false-password-label {
-    color: red;
-    font-size: 13px;
-    padding-bottom: 10px;    
 }

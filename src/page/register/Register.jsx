@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, Button } from "react-bootstrap";
+import axios from "axios";
 import './Register.css';
+import { useNavigate } from "react-router-dom";
+
 
 const TopLabel = () => {
     return (
@@ -63,9 +66,11 @@ const RegisterBtn = ({ onRegister }) => {
 const RegisterForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [check, setCheck] = useState('');
+    const [password2, setPassword2] = useState('');
     const [IsValidated, setIsValidate] = useState(true);
-
+    const [IsRegistered, setIsRegistered] = useState(false);
+    const navigate = useNavigate();
+    
     const handleEmailChange = (e) => {
         setEmail(e.target.value);
     };
@@ -75,22 +80,66 @@ const RegisterForm = () => {
     };
 
     const handleCheckChange = (e) => {
-        setCheck(e.target.value);
+        setPassword2(e.target.value);
     };
 
-    const handleRegister = () => {
-        if (password !== check) {
+    const checkPassword = () => {
+        if (password !== password2) {
             setIsValidate(false);
         } else {
             setIsValidate(true);
         }
+        return IsValidated;
     };
+
+    const handleRegister = () => {
+        const check = checkPassword();
+        console.log(check);
+        if (!check) {return ;}
+
+        try {
+            const api = 'http://localhost:8000/api/sign-up/'
+            const data = {
+            email : email,
+            password : password,
+            password2 : password2
+            }
+            axios.post(api, JSON.stringify(data) , {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                if (response.status === 201) {
+                    setIsRegistered(true);
+                }
+            });
+
+        } catch (error) {
+            console.log('오류 : ', error.response.status);
+            console.log('메시지 : ', error.response.data);
+        }
+    };
+
+    useEffect(() => {
+        if (IsRegistered) {
+            window.alert('회원 가입 완료')
+            navigate('/login');
+        }
+    }, [IsRegistered, navigate]);
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             handleRegister();
         }
     };
+
+    const responseMsg = () => {
+        let msg;
+        if (!IsValidated) {
+            msg = '* 패스워드가 일치하지 않습니다.';
+            return msg;
+        }
+    }
 
     return (
         <div className="registerform-bg">
@@ -100,18 +149,11 @@ const RegisterForm = () => {
               onPasswordChange={handlePasswordChange}
               onCheckChange={handleCheckChange}
               onKeyDown={handleKeyDown}
-              onRegister={handleRegister}
             />
-            <label
-              className={
-                IsValidated ?
-                'true-password-label' :
-                'false-password-label'
-              }
-            >
-                * 패스워드가 일치하지 않습니다.
-            </label>
-            <RegisterBtn onRegister={handleRegister} />            
+            <div className="check-password-label">
+                <label>{responseMsg()}</label>
+            </div>
+            <RegisterBtn onRegister={handleRegister} />
         </div>
     );
 };
