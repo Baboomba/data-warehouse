@@ -1,6 +1,6 @@
 import { Form, Button } from "react-bootstrap";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import './Login.css';
 
 const TopLabel = () => {
@@ -78,6 +78,8 @@ const RegisterLink = () => {
 const LoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [isLogin, setIsLogin] = useState(false);
+    const navigate = useNavigate();
 
     const handleEmailChange = (e) => {
         setEmail(e.target.value);
@@ -102,12 +104,19 @@ const LoginForm = () => {
                 throw new Error('Login failed');
             }
             console.log('Login successful');
+            setIsLogin(true);        
             return response.json();
         })
         .catch(error => {
             console.error('error during login', error);
         });
     };
+
+    useEffect(() => {
+        if (isLogin) {
+            navigate('/');
+        }
+    }, [isLogin, navigate])
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
