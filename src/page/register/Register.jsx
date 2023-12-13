@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import axios from "axios";
 import './Register.css';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 
 const TopLabel = () => {
@@ -58,6 +58,16 @@ const RegisterBtn = ({ onRegister }) => {
             >
                 <label>회원 가입</label>
             </Button>
+        </div>
+    );
+};
+
+const LoginLink = () => {
+    return (
+        <div className="login-link">
+            <Link to='/login'>
+                <label>로그인</label>
+            </Link>
         </div>
     );
 };
@@ -154,6 +164,7 @@ const RegisterForm = () => {
                 <label>{responseMsg()}</label>
             </div>
             <RegisterBtn onRegister={handleRegister} />
+            <LoginLink />
         </div>
     );
 };

@@ -34,3 +34,12 @@
     font-size: 13px;
     padding-bottom: 10px;
 }
+
+.login-link {
+    display: flex;
+    justify-content: right;
+}
+
+.login-link label:hover {
+    text-decoration: underline;
+}
