@@ -5,6 +5,7 @@ import SideMenu from "../../component/sideMenu/SideMenu";
 import { RegisterForm } from "../register/Register";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { Header } from "../../component/header/Header";
 
 
 const Main = () => {
@@ -28,7 +29,8 @@ const Main = () => {
                         <SideMenu />
                     </Col>
                     <Col className="main-grid-right">
-                        <Row className="main-grid-header">Main Header
+                        <Row className="main-grid-header">
+                            <Header />
                         </Row>
                         <Row className="main-grid-content">Content
                         </Row>
