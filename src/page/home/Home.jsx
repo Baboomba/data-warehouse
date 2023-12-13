@@ -3,9 +3,23 @@ import './Home.css';
 import { LoginForm } from "../login/Login";
 import SideMenu from "../../component/sideMenu/SideMenu";
 import { RegisterForm } from "../register/Register";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 
 const Main = () => {
+    const navigate = useNavigate();
+    const checkLogin = () => {
+        const value = localStorage.getItem('isLoggedIn');
+        if (!value) {
+            navigate('/login');
+        }
+    };
+
+    useEffect(() => {
+        checkLogin();
+    }, [])
+    
     return (
         <div>
             <Container fluid>
