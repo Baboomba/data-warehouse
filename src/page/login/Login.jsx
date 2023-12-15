@@ -104,7 +104,7 @@ const LoginForm = () => {
                 throw new Error('Login failed');
             }
             console.log('Login successful');
-            localStorage.setItem('isLoggedIn', true);
+            sessionStorage.setItem('isLoggedIn', true);
             setIsLogin(true);
             return response.json();
         })

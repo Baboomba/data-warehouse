@@ -11,7 +11,8 @@ import { Header } from "../../component/header/Header";
 const Main = () => {
     const navigate = useNavigate();
     const checkLogin = () => {
-        const value = localStorage.getItem('isLoggedIn');
+        const value = sessionStorage.getItem('isLoggedIn');
+        console.log(value);
         if (!value) {
             navigate('/login');
         }
