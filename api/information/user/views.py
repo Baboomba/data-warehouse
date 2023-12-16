@@ -44,6 +44,18 @@ class SignUpView(APIView):
 class LoginView(TokenObtainPairView):
     permission_classes = [AllowAny]
     serializer_class = TokenObtainPairSerializer
+
+class HTTPOnlyLoginView(LoginView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, *kwargs)
+        
+        if response.status_code == 200:
+            refresh = RefreshToken.for_user(request.user)
+            access_token = str(refresh.access_token)
+            
+            response.set_cookie(key='access_token', value=access_token, httponly=True)
+        
+        return response
     
 
 class ReadUserView(APIView):
