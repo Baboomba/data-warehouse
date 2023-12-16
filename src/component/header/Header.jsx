@@ -8,7 +8,7 @@ import { ListModal } from '../modal/modal';
 
 const CenterHeader = () => {
     return (
-        <div className='header-container'>
+        <div className='center-header'>
             <div className='header-left'>left</div>
             <div className='header-center'>center</div>
         </div>
@@ -31,7 +31,7 @@ const RightHeader = () => {
                 <LogoutIcon />
                 log-out
             </label>
-            <ListModal onClicked={isClicked} />
+            <ListModal onClicked={isClicked} handleClick={handleSettings} />
         </div>
     );
 }

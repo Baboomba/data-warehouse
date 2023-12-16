@@ -37,7 +37,7 @@
 }
 
 .main-grid-footer {
-    height: 10vh;    
+    height: calc(100% - 90vh);
 }
 
 
