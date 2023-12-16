@@ -1,7 +1,9 @@
 import './Header.css';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Button } from 'react-bootstrap';
+import { useState } from 'react';
+import { ListModal } from '../modal/modal';
+
 
 
 const CenterHeader = () => {
@@ -14,9 +16,14 @@ const CenterHeader = () => {
 };
 
 const RightHeader = () => {
+    const [isClicked, setIsClicked] = useState(false);
+    const handleSettings = () => {
+        setIsClicked(!isClicked);
+    }
+
     return (
         <div className='right-header'>
-            <label className='settings-btn'>
+            <label className='settings-btn' onClick={handleSettings}>
                 <SettingsIcon />
                 settings
             </label>
@@ -24,6 +31,7 @@ const RightHeader = () => {
                 <LogoutIcon />
                 log-out
             </label>
+            <ListModal onClicked={isClicked} />
         </div>
     );
 }

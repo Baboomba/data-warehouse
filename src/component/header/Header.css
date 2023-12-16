@@ -6,6 +6,7 @@
     position: sticky;
 }
 
+/* Right header */
 .right-header {
     display: flex;
     width: 300px;
@@ -18,17 +19,16 @@
     margin-left: 10px;
     padding: 10px;
     border-radius: 15px;
-    transition: background-color 0.4s ease-out;
+    transition: all 0.4s ease-out;
 }
 
 .settings-btn:hover, .logout-btn:hover {
-    color: rgb(73, 73, 73);
     cursor: pointer;
     background-color: rgba(209, 209, 209, 0.3);
 }
 
 .settings-btn:active, .logout-btn:active {
-    color: rgb(190, 190, 190);
+    background-color: rgba(209, 209, 209, 0.5);
 }
 
 .logout-btn {
