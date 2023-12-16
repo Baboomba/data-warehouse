@@ -1,7 +1,7 @@
 .side-menu-bg {
     width: 200px;
     height: 90vh;
-    position: fixed;
+    position: sticky;
 }
 
 .main-menu-list {

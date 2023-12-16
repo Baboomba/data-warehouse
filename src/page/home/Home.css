@@ -4,26 +4,40 @@
 }
 
 /* main layout */
+.main-body {
+    display: flex;
+}
+
 .main-grid-left {
     height: 90vh;
     width: 200px;
     padding: 0;
 }
 
-.main-grid-right {
+.main-grid-center {
     height: 90vh;
+    width: 1100px;
 }
 
-.main-grid-header {
+.main-center-header {
     height: 50px;
 }
 
-.main-grid-content {
+.main-center-content {
     height: calc(100% - 50px);
 }
 
+.main-grid-right {
+    height: 90vh;
+    width: 250px;
+}
+
+.main-right-header {
+    height: 50px;
+}
+
 .main-grid-footer {
-    height: 10vh;
+    height: 10vh;    
 }
 
 

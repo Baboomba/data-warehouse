@@ -1,18 +1,31 @@
-import { Col, Container } from 'react-bootstrap';
 import './Header.css';
+import SettingsIcon from '@mui/icons-material/Settings';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { Button } from 'react-bootstrap';
 
 
-
-
-const Header = () => {
+const CenterHeader = () => {
     return (
         <div className='header-container'>
-            <Container fluid>
-                <Col className='header-leftside'>left</Col>
-                <Col className='header-rightside'>right</Col>
-            </Container>
+            <div className='header-left'>left</div>
+            <div className='header-center'>center</div>
         </div>
     );
 };
 
-export { Header };
+const RightHeader = () => {
+    return (
+        <div className='right-header'>
+            <label className='settings-btn'>
+                <SettingsIcon />
+                settings
+            </label>
+            <label className='logout-btn'>
+                <LogoutIcon />
+                log-out
+            </label>
+        </div>
+    );
+}
+
+export { CenterHeader, RightHeader };
