@@ -3,6 +3,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useState } from 'react';
 import { ListModal } from '../modal/modal';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -21,13 +22,19 @@ const RightHeader = () => {
         setIsClicked(!isClicked);
     }
 
+    const navigate = useNavigate();
+    const handleLogout = () => {
+        sessionStorage.removeItem('isLoggedIn');
+        navigate('/login');
+    }
+
     return (
         <div className='right-header'>
             <label className='settings-btn' onClick={handleSettings}>
                 <SettingsIcon />
                 settings
             </label>
-            <label className='logout-btn'>
+            <label className='logout-btn' onClick={handleLogout}>
                 <LogoutIcon />
                 log-out
             </label>
