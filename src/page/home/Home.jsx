@@ -6,6 +6,7 @@ import { RegisterForm } from "../register/Register";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { CenterHeader, RightHeader } from "../../component/header/Header";
+import { MainContent } from "../../component/content/main/Main";
 
 
 const Main = () => {
@@ -31,7 +32,8 @@ const Main = () => {
                     <div className="main-center-header">
                         <CenterHeader />
                     </div>
-                    <div className="main-center-content">Content
+                    <div className="main-center-content">
+                        <MainContent />
                     </div>
                 </div>
                 <div className="main-grid-right">
