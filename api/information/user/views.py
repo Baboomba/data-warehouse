@@ -45,6 +45,7 @@ class LoginView(TokenObtainPairView):
     permission_classes = [AllowAny]
     serializer_class = TokenObtainPairSerializer
 
+
 class HTTPOnlyLoginView(LoginView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, *kwargs)
@@ -56,6 +57,21 @@ class HTTPOnlyLoginView(LoginView):
             response.set_cookie(key='access_token', value=access_token, httponly=True)
         
         return response
+
+
+class HTTPOnlyLogoutView(APIView):
+    def post(self, request):
+        user = request.user
+
+        if user.is_authenticated:
+            user.refresh_token.delete()
+            
+            request.user.is_authenticated = False
+            request.session['is_logged_in'] = False
+
+            return Response({'detail': 'Successfully logged out'})
+        else:
+            return Response({'detail': 'You are not logged in'})
     
 
 class ReadUserView(APIView):
