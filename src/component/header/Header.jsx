@@ -4,6 +4,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useState } from 'react';
 import { ListModal } from '../modal/modal';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 
 
@@ -23,9 +24,32 @@ const RightHeader = () => {
     }
 
     const navigate = useNavigate();
-    const handleLogout = () => {
+    const handleLogout = async () => {
         sessionStorage.removeItem('isLoggedIn');
         navigate('/login');
+        // const url = 'http://localhost:8000/api/logout/';
+        // const acessToken = 'access_token';
+
+        // try {
+        //     const response = await axios.post(url, {}, {
+        //         withCredentials: 'include',
+        //         headers: {
+        //             Authorization: `Bearer ${acessToken}`,
+        //         }
+        //     }
+                
+        //     );
+            
+        //     console.log('response ok');
+
+        //     if (response.status === 200) {
+        //         sessionStorage.removeItem('isLoggedIn');
+        //         navigate('/login');
+        //         console.log(response.detail);
+        //     }
+        // } catch (error) {
+        //     console.error('reponse await error');
+        // }
     }
 
     return (
