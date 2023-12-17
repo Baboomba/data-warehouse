@@ -7,12 +7,18 @@ import { useState } from 'react';
 
 
 const ModalContent = ({ handleClick }) => {
-    const [isDarkMode, setIsDarkMode] = useState(false);
+    const [isDarkMode, setIsDarkMode] = useState(() => {
+        return localStorage.getItem('dark mode') === 'true' ? true : false
+    });
+    
     const handleCheck = () => {
-        setIsDarkMode(!isDarkMode);
-        localStorage.setItem('dark mode', isDarkMode);
-    }
-
+        setIsDarkMode(prevIsDarkMode => {
+            const newIsDarkMode = !prevIsDarkMode;
+            localStorage.setItem('dark mode', newIsDarkMode);
+            return newIsDarkMode;
+        });
+    };
+    
     return (
         <div className='modal-content-area'>
             <span className='list-modal-title'>
@@ -27,6 +33,7 @@ const ModalContent = ({ handleClick }) => {
                     <Form>
                         <Form.Check
                           type='switch'
+                          defaultChecked={isDarkMode}
                           onClick={handleCheck}
                         />
                     </Form>

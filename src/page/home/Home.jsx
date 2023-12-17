@@ -12,7 +12,6 @@ const Main = () => {
     const navigate = useNavigate();
     const checkLogin = () => {
         const value = sessionStorage.getItem('isLoggedIn');
-        console.log(value);
         if (!value) {
             navigate('/login');
         }
