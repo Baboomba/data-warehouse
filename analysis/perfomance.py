@@ -262,17 +262,19 @@ class ConversionRate:
     
     Parameter
     ---
-    date : '2023-08-01' 형식 / 마감 월에 맞춰 입력
+    start : '2023-08-01' 형식 / 마감 월에 맞춰 입력
+    
+    end : '2023-08-31' 형식 / 마감 월에 맞춰 입력
     '''
-    def __init__(self, date: str, save: bool=True):
-        self.date = date
-        self.conversion_dic = self.__extract_data(date=self.date)
+    def __init__(self, start: str, end: str=None, save: bool=True):
+        self.date = start
+        self.conversion_dic = self.__extract_data(start, end)
         self.__save_dataframe(save)
     
-    def __extract_data(self, date: str):
+    def __extract_data(self, start: str, end: str):
         conversion_dic = {}
-        pid = ConversionRate.FirstPayment(date=date).pid_group
-        exp = ConversionRate.ExpiredProduct(date=date).expiration_group
+        pid = ConversionRate.FirstPayment(start, end).result
+        exp = ConversionRate.ExpiredProduct(start, end).expiration_group
         conversion_dic['pid'] = pid
         conversion_dic['exp'] = exp
         return conversion_dic
@@ -305,55 +307,60 @@ class ConversionRate:
             wb.save(fr'result\프로모션전환율_{now}.xlsx')
             print('데이터 저장 완료!!!')
     
+
     class FirstPayment:
-        '''
-        최초결제건 추출
+        def __init__(self, start: str, end: str=None):
+            self.col = [
+                '매출일',
+                '주문번호',
+                'PRODUCT_ID',
+                'POLICY_ID'
+            ]
+            self.data = self.filtered_table(start, end)
+            self.result = self.groupby()        
         
-        Parameter
-        ---
-        date : '2023-08-01' 형식 / 마감 월에 맞춰 입력
-        '''
+        def read(self):
+            self.data = pd.read_parquet(DATA_PATH['toss_payment'])
+            return self
         
-        payment_table_path = r'data\table\toss_payment.parquet'
+        def filter_data(self, end: str=None):
+            if end:
+                condition = (self.data['매출일'] < end)
+                self.data = self.data[condition]
+            return self
         
-        def __init__(self, date: str):
-            self.date = date
-            self.month = self.date_transform()
-            self.pid_group = self.groupby_pid()
+        def add_month(self):
+            self.data['month'] = pd.to_datetime(self.data['매출일']).dt.to_period('M')
+            return self
         
-        def date_transform(self):
-            date = datetime.strptime(self.date, '%Y-%m-%d')
-            month = datetime.strftime(date, '%Y-%m')
-            return month
+        def first_payment(self):
+            min = self.data.groupby(['POLICY_ID', 'PRODUCT_ID'])['month'].min().reset_index()
+            min.rename(columns={'month': 'first_payment'}, inplace=True)
+            return min
         
-        def __basic_data(self):
-            '''
-            기초 데이터 읽기 및 데이터 형식 변환
-            '''
-            df = pd.read_parquet(self.payment_table_path)
-            df['매출일'] = pd.to_datetime(df['매출일'])
-            print('데이터 읽기 및 날짜 형식 변환 완료')
-            return df
+        def last_payment(self):
+            max = self.data.groupby(['POLICY_ID', 'PRODUCT_ID'])['month'].max().reset_index()
+            max.rename(columns={'month': 'last_payment'}, inplace=True)
+            return max
         
-        def __first_payment(self):
-            '''
-            최초결제 건 추출
-            '''
-            df = self.__basic_data()
-            df = df.groupby([df['매출일'].dt.to_period('M'), 'PRODUCT_ID', 'POLICY_ID'])['주문번호'].count().reset_index()
-            df = df.sort_values('매출일').drop_duplicates(subset='POLICY_ID', keep=False)
-            df = df[(df['매출일'] == self.month)]
-            print('최초결제 건 추출 완료')
-            return df
+        def merge(self):
+            min = self.first_payment()
+            max = self.last_payment()
+            return pd.merge(min, max, on=['POLICY_ID', 'PRODUCT_ID'], how='left')
         
-        def groupby_pid(self):
-            '''
-            PID별 그룹화 테이블 추출
-            '''
-            df = self.__first_payment()
-            df = df.groupby('PRODUCT_ID')['주문번호'].count().reset_index()
-            print('PID별 그룹화 완료')
-            return df
+        def filter_merge(self, start: str):
+            result = self.merge()
+            return result[(result['first_payment'] == start)]
+        
+        def filtered_table(self, start, end):
+            self.read().filter_data(end).add_month()
+            return self.filter_merge(start)
+        
+        def groupby(self):
+            group = self.data.groupby('PRODUCT_ID')['POLICY_ID'].count().reset_index()
+            group.rename(columns={'POLICY_ID': '최초결제건수'}, inplace=True)
+            return group
+    
     
     class ExpiredProduct:
         '''
@@ -363,14 +370,12 @@ class ConversionRate:
         ---
         date : '2023-08-01' 형식 / 마감 월에 맞춰 입력
         '''
-        member_table_path = r'data\table\member_list.parquet'
-        info_table_path = r'data\table\PROGRAM_INFO.parquet'
+        member_table_path = DATA_PATH['member_list']
+        info_table_path = DATA_PATH['program_info']
         
-        def __init__(self, date: str):
+        def __init__(self, start: str, end: str):
             print('만기 상품 집계 시작')
-            self.date = date
-            self.month = self.date_transform()
-            self.expiration_group = self.groupby_expiration()
+            self.expiration_group = self.groupby_expiration(start, end)
         
         def date_transform(self):
             date = datetime.strptime(self.date, '%Y-%m-%d')
@@ -385,7 +390,7 @@ class ConversionRate:
             
             print('프로그램 정보 추출 중...')
             col_ = ['PROGRAM_CODE', 'PROMOTION_MONTH']
-            info = pd.read_parquet(r'data\table\PROGRAM_INFO.parquet')[col_]
+            info = pd.read_parquet(self.info_table_path)[col_]
             info.rename(columns={'PROGRAM_CODE': '상품정보'}, inplace=True)
             
             print('회원정보와 프로그램 정보를 병합 중...')
@@ -393,7 +398,7 @@ class ConversionRate:
             mg.drop(columns='프로모션유무', inplace=True)
             return mg
         
-        def __add_expiration_date(self):
+        def __add_expiration_date(self, start, end):
             '''
             상품만기 정보 컬럼 추가
             '''
@@ -402,16 +407,34 @@ class ConversionRate:
             # 만기일
             print('만기월 계산 중...')
             mg['보험가입일'] = pd.to_datetime(mg['보험가입일'])
-            mg['보험만기일'] = mg.apply(lambda row: row['보험가입일'] + pd.DateOffset(months=row['PROMOTION_MONTH']), axis=1)
+                        
+            selection = [
+                mg['PROMOTION_MONTH'] == 36,
+                mg['PROMOTION_MONTH'] == 24,
+                mg['PROMOTION_MONTH'] == 12,
+                mg['PROMOTION_MONTH'] == 6,
+                mg['PROMOTION_MONTH'] == 3
+            ]
+
+            values = [
+                mg['보험가입일'] + pd.DateOffset(months=36),
+                mg['보험가입일'] + pd.DateOffset(months=24),
+                mg['보험가입일'] + pd.DateOffset(months=12),
+                mg['보험가입일'] + pd.DateOffset(months=6),
+                mg['보험가입일'] + pd.DateOffset(months=3)
+            ]
+
+            mg['보험만기일'] = np.select(selection, values, mg['보험가입일'])
+            
             # 세부 날짜 지정(현재 기준 만기 도래하지 않은 항목 삭제)
-            mg = mg[mg['보험만기일'] <= self.date]
+            mg = mg[mg['보험만기일'] < end]
             mg['보험만기일'] = mg['보험만기일'].dt.to_period('M')
-            mg = mg[mg['보험만기일'] == self.month]
+            mg = mg[mg['보험만기일'] == pd.to_datetime(start).to_period('M')]
             mg['보험만기일'] = mg['보험만기일'].astype('str')
             return mg
         
-        def groupby_expiration(self):
-            mg = self.__add_expiration_date()
+        def groupby_expiration(self, start, end):
+            mg = self.__add_expiration_date(start, end)
             print('만기월 그룹화 중...')
             mg = mg.groupby('상품정보')['보험만기일'].count().reset_index()
             return mg
