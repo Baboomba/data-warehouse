@@ -1,3 +1,7 @@
+from django.contrib.auth import authenticate
+from django.conf import settings
+from django.middleware import csrf
+
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
@@ -41,37 +45,75 @@ class SignUpView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LoginView(TokenObtainPairView):
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+class LoginView(APIView):
     permission_classes = [AllowAny]
-    serializer_class = TokenObtainPairSerializer
+    
+    def post(self, request, format=None):
+        data = request.data
+        response = Response()
+        username = data.get('email', None)
+        password = data.get('password', None)
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            if user.is_active:
+                data = get_tokens_for_user(user)
+                response.set_cookie(
+                    key = settings.SIMPLE_JWT['AUTH_COOKIE'],
+                    value = data["access"],
+                    expires = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+                    secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                    httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                    samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+                )
+                csrf.get_token(request)
+                response.data = {"Success" : "Login successfully","data":data}
+                return response
+            else:
+                return Response({"No active" : "This account is not active!!"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({"Invalid" : "Invalid username or password!!"}, status=status.HTTP_404_NOT_FOUND)
 
 
-class HTTPOnlyLoginView(LoginView):
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, *kwargs)
+
+# class LoginView(TokenObtainPairView):
+#     permission_classes = [AllowAny]
+#     serializer_class = TokenObtainPairSerializer
+
+
+# class HTTPOnlyLoginView(LoginView):
+#     def post(self, request, *args, **kwargs):
+#         response = super().post(request, *args, *kwargs)
         
-        if response.status_code == 200:
-            refresh = RefreshToken.for_user(request.user)
-            access_token = str(refresh.access_token)
+#         if response.status_code == 200:
+#             refresh = RefreshToken.for_user(request.user)
+#             access_token = str(refresh.access_token)
             
-            response.set_cookie(key='access_token', value=access_token, httponly=True)
+#             response.set_cookie(key='access_token', value=access_token, httponly=True)
         
-        return response
+#         return response
 
 
 class HTTPOnlyLogoutView(APIView):
-    def post(self, request):
-        user = request.user
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, *args, **kwargs):
+        access_token = request.data.get('access_token')
+        if access_token:
+            try:
+                token = RefreshToken(access_token)
+                token.blacklist()
+            except Exception as e:
+                return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if user.is_authenticated:
-            user.refresh_token.delete()
-            
-            request.user.is_authenticated = False
-            request.session['is_logged_in'] = False
-
-            return Response({'detail': 'Successfully logged out'})
-        else:
-            return Response({'detail': 'You are not logged in'})
+        return Response({'message': 'Successfully logged out'}, status=status.HTTP_200_OK)
     
 
 class ReadUserView(APIView):
