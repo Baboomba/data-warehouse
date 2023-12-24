@@ -9,4 +9,4 @@ class MonthlyJoinSerializer(ModelSerializer):
         fields = [
             'policy_id',
             'date_joined'
-        ]      
+        ]
