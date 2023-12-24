@@ -1,18 +1,20 @@
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.conf import settings
+from django.utils.deprecation import MiddlewareMixin
 
 from rest_framework.authentication import CSRFCheck
 from rest_framework import exceptions
 
 
 def enforce_csrf(request):
-    check = CSRFCheck()
+    check = CSRFCheck(request)
     check.process_request(request)
     reason = check.process_view(request, None, (), {})
     if reason:
         raise exceptions.PermissionDenied('CSRF Failed: %s' % reason)
 
 class CustomAuthentication(JWTAuthentication):
+
     def authenticate(self, request):
         header = self.get_header(request)
 

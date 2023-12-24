@@ -10,7 +10,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
 from .models import Info
-from .serializer import SignUpSerializer, UserSerializer
+from .serializer import SignUpSerializer, UserSerializer, TokenSerializer
 
 
 
@@ -69,15 +69,6 @@ class LoginView(APIView):
                 response.set_cookie(
                     key = settings.SIMPLE_JWT['AUTH_COOKIE'],
                     value = data["access"],
-                    expires = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
-                    secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-                    httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-                    samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
-                )
-                
-                response.set_cookie(
-                    key = settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'],
-                    value = data["refresh"],
                     expires = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
                     secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
                     httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],

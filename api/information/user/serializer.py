@@ -16,3 +16,12 @@ class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = Info
         fields = ['email', 'password', 'password2']
+
+
+class TokenSerializer(serializers.ModelSerializer):
+    access = serializers.CharField()
+    refresh = serializers.CharField()
+    
+    class Meta:
+        model = Info
+        fields = ['email', 'password', 'access', 'refresh']
