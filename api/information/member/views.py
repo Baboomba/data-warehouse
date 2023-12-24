@@ -12,4 +12,3 @@ class MonthlyJoinView(APIView):
         monthly_join = queryset.count()
         response = {'monthly_join': monthly_join}
         return Response(response, status=status.HTTP_200_OK)
-        
