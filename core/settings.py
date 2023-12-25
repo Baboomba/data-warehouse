@@ -34,15 +34,15 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTP_ONLY = True
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000'
 ]
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SAMESITE = None # 'Lax'
+SESSION_COOKIE_SAMESITE = None # 'Lax'
 
 
 # Application definition
@@ -86,8 +86,8 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=59),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=900),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
@@ -130,7 +130,7 @@ SIMPLE_JWT = {
     'AUTH_COOKIE_SECURE': False,          # Whether the auth cookies should be secure (https:// only).
     'AUTH_COOKIE_HTTP_ONLY' : True,       # Http only cookie flag.It's not fetch by javascript.
     'AUTH_COOKIE_PATH': '/',              # The path of the auth cookie.
-    'AUTH_COOKIE_SAMESITE': 'None',       # Whether to set the flag restricting cookie leaks on cross-site requests.
+    'AUTH_COOKIE_SAMESITE': None,       # Whether to set the flag restricting cookie leaks on cross-site requests.
                                           # This can be 'Lax', 'Strict', or None to disable the flag.
 }
 

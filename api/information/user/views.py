@@ -72,7 +72,9 @@ class LoginView(APIView):
                     expires = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
                     secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
                     httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-                    samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+                    samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+                    domain = settings.SIMPLE_JWT['AUTH_COOKIE_DOMAIN'],
+                    path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH'],
                 )
                 
                 csrf.get_token(request)
