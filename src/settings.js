@@ -14,7 +14,8 @@ const MENU_ITEM = {
             'model',
             'promotion',
             'category'
-        ]
+        ],
+        path : '/basic-table'
     },
 
     item2 : {
@@ -26,7 +27,8 @@ const MENU_ITEM = {
             'sub b',
             'sub c',
             'sub d'
-        ]        
+        ],
+        path : '/analysis'
     },
 
     item3 : {

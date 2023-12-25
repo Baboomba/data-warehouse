@@ -3,9 +3,14 @@ import { MENU_ITEM } from "../../../settings";
 import './ListItem.css';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { useNavigate } from "react-router-dom";
 
 
 const SimpleItem = ({ menuitem }) => {
+    const navigate = useNavigate();
+    const handleClick = () => {
+        navigate(menuitem.path);
+    }
     return (
         <label className="menu-items">
             {MENU_ITEM[menuitem].icon}

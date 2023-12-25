@@ -6,7 +6,7 @@
     flex-direction: column;
 }
 
-.main-chart-area, .main-board-area {
+.main-count-area, .main-chart-area {
     display: flex;
     width: inherit;
     height: 250px;
@@ -14,6 +14,14 @@
     justify-content: space-around;
 }
 
-.main-board-area {
+.main-chart-area {
     height: calc(90vh - 50px - 250px);
+}
+
+.main-content-count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
 }

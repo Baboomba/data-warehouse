@@ -25,32 +25,21 @@ const RightHeader = () => {
 
     const navigate = useNavigate();
     const handleLogout = async () => {
-        sessionStorage.removeItem('isLoggedIn');
-        navigate('/login');
-        // const url = 'http://localhost:8000/api/logout/';
-        // const acessToken = 'access_token';
-
-        // try {
-        //     const response = await axios.post(url, {}, {
-        //         withCredentials: 'include',
-        //         headers: {
-        //             Authorization: `Bearer ${acessToken}`,
-        //         }
-        //     }
-                
-        //     );
+        const url = 'http://localhost:8000/api/logout/';
+        
+        try {
+            const response = await axios.post(url, {}, {
+                withCredentials: true
+            });
             
-        //     console.log('response ok');
-
-        //     if (response.status === 200) {
-        //         sessionStorage.removeItem('isLoggedIn');
-        //         navigate('/login');
-        //         console.log(response.detail);
-        //     }
-        // } catch (error) {
-        //     console.error('reponse await error');
-        // }
-    }
+            if (response.status === 200) {
+                sessionStorage.removeItem('isLoggedIn');
+                navigate('/login');
+            }
+        } catch (error) {
+            console.error('reponse await error');
+        }
+    };
 
     return (
         <div className='right-header'>

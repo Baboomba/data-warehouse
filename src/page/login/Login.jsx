@@ -2,6 +2,7 @@ import { Form, Button } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import './Login.css';
+import axios from "axios";
 
 const TopLabel = () => {
     return (
@@ -89,41 +90,30 @@ const LoginForm = () => {
     }
 
     const handleLogin = async () => {
-        fetch('http://localhost:8000/api/login/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password,
-            })
-        })
-        .then(response => {
-            if(!response.ok) {
-                throw new Error('Login failed');
-            }
-            console.log('Login successful');
+        try {
+            const url = 'http://localhost:8000/api/login/';
+            const data = { email : email, password : password };
+            const res = await axios.post(url, data);
+            
+            sessionStorage.setItem('refresh', res.data.data.refresh);
             sessionStorage.setItem('isLoggedIn', true);
             setIsLogin(true);
-            return response.json();
-        })
-        .catch(error => {
-            console.error('error during login', error);
-        });
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     useEffect(() => {
         if (isLogin) {
             navigate('/');
         }
-    }, [isLogin, navigate])
+    }, [isLogin, navigate]);
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             handleLogin()
         }
-    }
+    };
     
     return (
         <div className="loginform-bg">
