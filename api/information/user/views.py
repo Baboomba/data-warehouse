@@ -111,8 +111,9 @@ class HTTPOnlyLogoutView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
-            token = RefreshToken(refresh_token)
-            token.blacklist()
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
             
             res = Response()
             res.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
@@ -120,7 +121,7 @@ class HTTPOnlyLogoutView(APIView):
             res.delete_cookie('X-CSRFToken')
             return res
         except:
-            return Response({'error: Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # class HTTPOnlyLogoutView(APIView):
