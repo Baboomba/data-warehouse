@@ -8,8 +8,8 @@ const CounterBoard = () => {
     const fetchMonthlyJoin = async () => {
         try {
             let url = 'http://localhost:8000/stats/total-member';
-            const res = await axios.get(url, { withCredentials: true });
-            setTotalCount(res.data['total_count']);
+            const res = await axios.get(url, { withCredentials : true });
+            setTotalCount(res.data.monthly_join);
         } catch (error) {
             console.log('request failed');
         }

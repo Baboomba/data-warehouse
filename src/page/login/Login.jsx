@@ -93,7 +93,7 @@ const LoginForm = () => {
         try {
             const url = 'http://localhost:8000/api/login/';
             const data = { email : email, password : password };
-            const res = await axios.post(url, data);
+            const res = await axios.post(url, data, { withCredentials : true });
             
             sessionStorage.setItem('refresh', res.data.data.refresh);
             sessionStorage.setItem('isLoggedIn', true);
