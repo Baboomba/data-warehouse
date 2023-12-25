@@ -1,15 +1,11 @@
 import axios from 'axios';
 import './Chart.css';
-import { BarChart, Tooltip, Legend, Line, LineChart, XAxis, YAxis } from 'recharts';
+import { BarChart, Tooltip, Legend, Line, LineChart, XAxis, YAxis, Bar } from 'recharts';
 
 
-const MainChart = () => {
-    const handleData = async () => {
-        const response = await axios.get();
-    };
-
+const SubLineChart = ({ data }) => {
     return (
-        <LineChart width={250} height={200}>
+        <LineChart width={250} height={200} data={data}>
             <XAxis />
             <YAxis />
             <Tooltip />
@@ -19,5 +15,14 @@ const MainChart = () => {
     );
 };
 
+const SubBarChart = ({ data }) => {
+    return (
+        <BarChart width={100} height={70} data={data}>
+            <Tooltip />
+            <Bar dataKey={"policy_id"} fill='#8884d8' />
+        </BarChart>
+    );
+}
 
-export { MainChart };
+
+export { SubLineChart, SubBarChart };
