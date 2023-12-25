@@ -26,10 +26,19 @@ const RightHeader = () => {
     const navigate = useNavigate();
     const handleLogout = async () => {
         const url = 'http://localhost:8000/api/logout/';
-        
+        const refresh = sessionStorage.getItem('refresh');
+        const getCSRFTokenFromCookie = () => {
+            const csrfCookie = document.cookie.split('; ').find(row => row.startsWith('csrftoken='));
+            return csrfCookie ? csrfCookie.split('=')[1] : null;
+        };
+
+
         try {
-            const response = await axios.post(url, {}, {
-                withCredentials: true
+            const response = await axios.post(url, { refresh }, {
+                withCredentials: true,
+                headers: {
+                    'X-CSRFToken': getCSRFTokenFromCookie()
+                }
             });
             
             if (response.status === 200) {
