@@ -6,6 +6,40 @@
     position: sticky;
 }
 
+.header-search-bar {
+    width: 230px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-search-bar > span {
+    width: 90%;
+    height: 35px;
+    border-radius: 20px;
+    background-color: rgba(100, 149, 237, 0.2);
+    display: flex;
+    align-items: center;
+}
+
+.header-search-bar > span > input {
+    width: 130px;
+    height: 90%;
+    border: none;
+    background-color: transparent;
+}
+
+.header-search-bar > span > input:focus {
+    outline: none;
+}
+
+.search-bar-icon {
+    margin: 0 5px 0 5px;
+}
+
+
+
 /* Right header */
 .right-header {
     display: flex;

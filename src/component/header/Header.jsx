@@ -1,17 +1,42 @@
 import './Header.css';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ListModal } from '../modal/modal';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import SearchIcon from '@mui/icons-material/Search';
 
 
+const SearchBar = () => {
+    const [searchWord, setSearchWord] = useState('');
+    const handleChange = (e) => {
+        setSearchWord(e.target.value);
+    };
+
+    useEffect(() => {
+        console.log(searchWord);
+    }, [searchWord])
+
+    return (
+        <div className='header-search-bar'>
+            <span>
+                <SearchIcon className='search-bar-icon' />
+                <input
+                  placeholder='search...'
+                  onChange={handleChange}
+                />
+            </span>
+        </div>
+    );
+};
 
 const CenterHeader = () => {
     return (
         <div className='center-header'>
-            <div className='header-left'>left</div>
+            <div className='header-left'>
+                <SearchBar />
+            </div>
             <div className='header-center'>center</div>
         </div>
     );
