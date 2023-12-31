@@ -1,8 +1,8 @@
 from django.urls import path
-from .views import TotalMemberView, MonthlyJoinView
+from .views import MonthlyJoinView, DailyJoinView
 
 
 urlpatterns = [
-    path('total-member/', TotalMemberView.as_view()),
-    path('monthly-join/', MonthlyJoinView.as_view()),
+    path('total-member/', MonthlyJoinView.as_view()),
+    path('monthly-join/', DailyJoinView.as_view()),
 ]

@@ -11,15 +11,16 @@ from .models import Info
 import pandas as pd
 
 
-class TotalMemberView(APIView):
+class MonthlyJoinView(APIView):
     def get(self, request, *args, **kwargs):
-        queryset = Info.objects.all()
+        current_month = timezone.now().month
+        queryset = Info.objects.values('policy_id').filter(date_joined__month=current_month)
         monthly_join = queryset.count()
         response = {'monthly_join': monthly_join}
         return Response(response, status=status.HTTP_200_OK)
 
 
-class MonthlyJoinView(APIView):
+class DailyJoinView(APIView):
     def get(self, request, *args, **kwargs):
         current_date = timezone.now()
         month_ago = current_date - timezone.timedelta(days=30)
