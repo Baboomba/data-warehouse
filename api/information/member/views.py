@@ -29,7 +29,7 @@ class DailyJoinView(APIView):
         ).values('date').annotate(
             daily_count=Count('policy_id')
         ).order_by('date')
-        print(queryset)
+        
         try:
             serializer = MonthlyJoinSerializer(queryset, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
