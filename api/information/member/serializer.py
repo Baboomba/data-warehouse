@@ -4,12 +4,12 @@ from .models import Info
 
 
 class MonthlyJoinSerializer(ModelSerializer):
-    date_joined = serializers.CharField(max_length=10)
-    policy_id = serializers.CharField(max_length=10)
+    date = serializers.DateField()
+    daily_count = serializers.IntegerField()
     
     class Meta:
         model = Info
         fields = [
-            'date_joined',
-            'policy_id',
+            'date',
+            'daily_count',
         ]

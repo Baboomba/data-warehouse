@@ -19,5 +19,10 @@ class Info(models.Model):
     untact_solution = models.BigIntegerField(null=True)
     is_promoted = models.CharField(max_length=5, null=True)
     
+    class Meta:
+        indexes = [
+            models.Index(fields=['date_joined']),
+        ]
+    
     def __str__(self):
         return self.policy_id

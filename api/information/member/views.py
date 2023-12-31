@@ -1,3 +1,6 @@
+from django.db.models import Count, functions
+from django.utils import timezone
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,17 +21,16 @@ class TotalMemberView(APIView):
 
 class MonthlyJoinView(APIView):
     def get(self, request, *args, **kwargs):
-        queryset = Info.objects.values('date_joined', 'policy_id')
-                
+        current_date = timezone.now()
+        month_ago = current_date - timezone.timedelta(days=30)
+        queryset = Info.objects.filter(date_joined__gte=month_ago).annotate(
+            date=functions.TruncDate('date_joined')
+        ).values('date').annotate(
+            daily_count=Count('policy_id')
+        ).order_by('date')
+        print(queryset)
         try:
-            df = pd.DataFrame(queryset)
-            df['date_joined'] = pd.to_datetime(df['date_joined']).dt.to_period('M')
-            df = df.groupby('date_joined')['policy_id'].count().reset_index()
-            df = df.iloc[-12:, :]
-            df['date_joined'] = df['date_joined'].dt.strftime('%Y-%m')
-            data = df.to_dict(orient='records')
-            serializer = MonthlyJoinSerializer(data, many=True)
-            print(serializer)
+            serializer = MonthlyJoinSerializer(queryset, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
             
         except:
