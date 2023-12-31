@@ -2,9 +2,10 @@ import axios from 'axios';
 import './Counter.css';
 import { useEffect, useState } from 'react';
 import { SubLineChart } from '../chart/Chart';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 
-const CounterBoard = () => {
+const DailyCounter = () => {
     const [totalCount, setTotalCount] = useState(0);
     const fetchTotalCount = async () => {
         try {
@@ -28,6 +29,17 @@ const CounterBoard = () => {
         return totalCount.toLocaleString('en-US', styled);
     };
 
+    const currentMonth = () => {
+        const currentDate = new Date();
+        const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
+        return currentMonth;
+    }
+
+    const [isHidden, setIsHidden] = useState(false);
+    const handleModal = () => {
+        setIsHidden(!isHidden);
+    }
+
     useEffect(() => {
         fetchTotalCount();
         fetchMonthlyJoin();
@@ -35,18 +47,26 @@ const CounterBoard = () => {
 
     return (
         <div className='counter-area'>
-            <div className='counter-indicator'>
+            <div className="counter-header">
+                <label>일일 가입자</label>
+                <button onClick={handleModal}>
+                    <MoreVertIcon />
+                </button>
+                <div>
+                    {isHidden && (
+                        <button>자세히..</button>
+                    )}
+                </div>
+            </div>
+            <div className="counter-body">
                 <SubLineChart data={monthlyJoin} />
-                <label>{formatNumber()}명</label>
             </div>
-            <div className='counter-instruction'>
-                일일 가입자
-            </div>
-            <div className='counter-date'>
-                기준일 2023-12-15
+            <div className="counter-footer">
+                <span>{currentMonth()} 누적</span>
+                <label>{formatNumber()}</label>
             </div>
         </div>
     );
 };
 
-export default CounterBoard;
+export default DailyCounter;

@@ -1,5 +1,5 @@
 import './Main.css';
-import CounterBoard from '../counter/Counter';
+import DailyCounter from '../counter/Counter';
 
 
 const MainContent = () => {
@@ -8,7 +8,7 @@ const MainContent = () => {
         <div className='main-content-area'>
             <div className='main-count-area'>
                 <div className="main-content-count">
-                    <CounterBoard />
+                    <DailyCounter />
                 </div>
                 <div className="main-content-count">count 2</div>
                 <div className="main-content-count">count 3</div>

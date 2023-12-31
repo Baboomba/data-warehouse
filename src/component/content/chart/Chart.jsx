@@ -4,12 +4,8 @@ import { BarChart, Tooltip, Legend, Line, LineChart, XAxis, YAxis, Bar } from 'r
 
 const SubLineChart = ({ data }) => {
     return (
-        <LineChart width={150} height={100} data={data}>
-            <Tooltip
-              wrapperStyle={{ borderColor: 'transparent', boxShadow: 'none' }}
-              contentStyle={{ background: 'transparent', border: 'none' }}
-            />
-            <Line type={'monotone'} dataKey='daily_count' dot={false} />
+        <LineChart width={200} height={120} data={data}>
+            <Line type={'monotone'} dataKey='daily_count' dot={false} strokeWidth={3} />
         </LineChart>
     );
 };
