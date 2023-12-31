@@ -11,3 +11,11 @@
     justify-content: center;
     height: 40%;
 }
+
+.counter-instruction {
+    font-size: 0.9rem;
+}
+
+.counter-date {
+    font-size: 0.8rem;
+}

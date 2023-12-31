@@ -1,7 +1,7 @@
 import axios from 'axios';
 import './Counter.css';
 import { useEffect, useState } from 'react';
-import { SubBarChart } from '../chart/Chart';
+import { SubLineChart } from '../chart/Chart';
 
 
 const CounterBoard = () => {
@@ -36,11 +36,11 @@ const CounterBoard = () => {
     return (
         <div className='counter-area'>
             <div className='counter-indicator'>
-                <SubBarChart data={monthlyJoin} />
-                <label>{formatNumber()}</label>
+                <SubLineChart data={monthlyJoin} />
+                <label>{formatNumber()}명</label>
             </div>
             <div className='counter-instruction'>
-                월간 누적 가입자
+                일일 가입자
             </div>
             <div className='counter-date'>
                 기준일 2023-12-15

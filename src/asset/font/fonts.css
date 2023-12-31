@@ -1,0 +1,8 @@
+@font-face {
+    font-family: 'HakgyoansimSantteutdotumL';
+    src: url('../../asset/font/HakgyoansimSantteutdotumL.ttf') format('ttf');
+}
+
+body {
+    font-family: 'HakgyoansimSantteutdotumL', sans-serif;
+}
