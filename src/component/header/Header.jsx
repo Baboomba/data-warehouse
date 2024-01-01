@@ -37,7 +37,7 @@ const CenterHeader = () => {
             <div className='header-left'>
                 <SearchBar />
             </div>
-            <div className='header-center'>center</div>
+            <div className='header-center'></div>
         </div>
     );
 };

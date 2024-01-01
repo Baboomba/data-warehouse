@@ -4,11 +4,6 @@
     position: sticky;
 }
 
-.main-menu-list {
-    overflow-y: scroll;
-    height: calc(90vh - 50px);
-}
-
 ::-webkit-scrollbar {
     width: 10px;
 }
@@ -18,5 +13,5 @@
 }
 
 .side-menu-bg:hover ::-webkit-scrollbar-thumb {
-    background-color: rgba(100, 149, 237, 0.6);
+    background-color: rgba(100, 149, 237, 0.7);
 }

@@ -1,6 +1,8 @@
 .main-menu-list {
     list-style-type: none;
     padding: 0;
+    overflow-y: scroll;
+    height: calc(90vh - 50px);
 }
 
 .main-menu-list-item {

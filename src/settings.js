@@ -15,7 +15,6 @@ const MENU_ITEM = {
             'promotion',
             'category'
         ],
-        path : '/basic-table'
     },
 
     item2 : {
@@ -28,7 +27,6 @@ const MENU_ITEM = {
             'sub c',
             'sub d'
         ],
-        path : '/analysis'
     },
 
     item3 : {
