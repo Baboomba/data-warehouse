@@ -1,14 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 
-// const initialState = {
-//     value = 0,
-// }
+export const menuSlice = createSlice({
+    name: 'menu',
+    initialState: {
+        selectedMenu: 'home',
+    },
+    reducers: {
+        selectedMenu: (state, action) => {
+            state.selectedMenu = action.payload;
+        },
+    },
+});
 
-// export const pageSlice = createSlice({
-//     name: 'page',
-//     initialState,
-//     reducers: {
-//         null,
-//     }
-// })
+export const { selectedMenu } = menuSlice.actions;
+export default menuSlice.reducer;
