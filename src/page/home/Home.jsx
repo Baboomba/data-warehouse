@@ -7,20 +7,22 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { CenterHeader, RightHeader } from "../../component/header/Header";
 import { MainContent } from "../../component/content/main/Main";
+import { useSelector } from "react-redux";
 
 
 const Main = () => {
     const navigate = useNavigate();
-    const checkLogin = () => {
-        const value = sessionStorage.getItem('isLoggedIn');
-        if (!value) {
-            navigate('/login');
-        }
-    };
+    const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
 
     useEffect(() => {
+        const checkLogin = () => {
+            if (isLoggedIn !== true) {
+                navigate('/login');
+            }
+        };
+
         checkLogin();
-    })
+    }, [isLoggedIn, navigate]);
     
     return (
         <div>
@@ -46,26 +48,6 @@ const Main = () => {
                 </div>
             </div>
             <div className="main-grid-footer">footer</div>
-            
-            {/* <Container fluid>
-                <Row>
-                    <Col md={2} className="main-grid-left">
-                        <SideMenu />
-                    </Col>
-                    <Col md={8} className="main-grid-center">
-                        <Row className="main-center-header">
-                            <Header />
-                        </Row>
-                        <Row className="main-center-content">Content
-                        </Row>
-                    </Col>
-                    <Col md={2} className="main-grid-right">
-                        <Row className="main-right-header">right</Row>
-                        <Row className="main-right-content">right content</Row>
-                    </Col>
-                </Row>
-                <Row className="main-grid-footer">footer</Row>
-            </Container> */}
         </div>
     );
 };

@@ -2,7 +2,9 @@ import { Form, Button } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import './Login.css';
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { loginAsync } from "../../slices/loginSlice";
+
 
 const TopLabel = () => {
     return (
@@ -39,10 +41,31 @@ const InputForm = ({ onEmailChange, onPasswordChange, onKeyDown }) => {
 };
 
 const MemorizeInfo = () => {
+    const [isSaved, setIsSaved] = useState(() => {
+        try {
+            const saved = localStorage.getItem('isSaved');
+            return saved === 'true' ? true : false;
+        } catch (error) {
+          console.error('Error while retrieving save status:', error);
+          return false;
+        }
+      });
+
+    const handleCheckChange = () => {
+        setIsSaved((prev) => {
+            const updatedValue = !prev;
+            localStorage.setItem('isSaved', updatedValue);
+            return updatedValue;
+        });
+    };
+
     return (
         <div className="container-memorize">
             <Form>
-            <Form.Check />
+                <Form.Check
+                  checked={isSaved}
+                  onChange={handleCheckChange}
+                />
             </Form>
             <label className="label-memorize">
                 아이디 기억하기
@@ -79,27 +102,22 @@ const RegisterLink = () => {
 const LoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [isLogin, setIsLogin] = useState(false);
+    const isLogin = useSelector((state) => state.auth.isLoggedIn);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleEmailChange = (e) => {
         setEmail(e.target.value);
     };
     const handlePasswordChange = (e) => {
         setPassword(e.target.value);
-    }
+    };
 
     const handleLogin = async () => {
         try {
-            const url = 'http://localhost:8000/api/login/';
-            const data = { email : email, password : password };
-            const res = await axios.post(url, data, { withCredentials : true });
-            
-            sessionStorage.setItem('refresh', res.data.data.refresh);
-            sessionStorage.setItem('isLoggedIn', true);
-            setIsLogin(true);
-        } catch (error) {
-            console.log(error);
+            dispatch(loginAsync({ email, password }));
+        } catch(error) {
+            console.error('Login failed : ', error);
         }
     };
 
