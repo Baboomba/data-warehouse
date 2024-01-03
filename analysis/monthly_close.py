@@ -361,6 +361,7 @@ class ConversionClassification:
     def order_cols(self):
         con = self.correct_conversion()
         con = con[['POLICY_ID', '접수번호', '유무상 구분', '접수날짜', '무상 종료일', '무상종료 전/후']]
+        return con
     
     def save_data(self, save: bool):
         if save:
