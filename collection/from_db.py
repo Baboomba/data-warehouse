@@ -5,6 +5,11 @@ import pandas as pd
 
 
 class DevideCloseFile:
+    '''
+    Parameter
+    ---
+    date >> '2024-01-01' 파일명에 들어가는 이름
+    '''
     def __init__(self, date: str):
         self.date = date
         self.data = self.read()

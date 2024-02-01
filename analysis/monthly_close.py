@@ -734,3 +734,44 @@ class Select14Days:
         
         def result(self, save, path):
             self.to_datetime().add_period().classify_target().save(save, path)
+            
+            
+class Select14Days_(UntactSolution):
+    def __init__(self, period_dic: dict, save: bool=False):
+        self.date = [date for _, date in period_dic.items()][0][0]
+        super().__init__(period_dic, save)
+        pass
+    
+    def read(self):
+        return pd.read_parquet(DATA_PATH['member_list'])
+    
+    def alter_type(self):
+        df = self.read()
+        df['보험가입일'] = pd.to_datetime(df['보험가입일'])
+        df['보험해지일'] = pd.to_datetime(df['보험해지일'])
+        return df
+    
+    def select_cols(self):
+        df = self.alter_type()
+        return df[['상품정보', '보험가입일', '보험해지일', '보험상태']]
+    
+    def filter_date(self):
+        df = self.select_cols()
+        return df[(df['보험상태'] == '해지') & (df['보험가입일'] >= self.date)]
+        
+    def holding_period(self):
+        df = self.filter_date()
+        df['가입기간'] = (df['보험해지일'] - df['보험가입일']).dt.days
+        return df
+    
+    def select_objects(self):
+        df = self.holding_period()
+        return df[df['가입기간'] <= 14]
+    
+    def pick_pid(self):
+        return self.result['상품정보'].to_list()
+    
+    def result(self):
+        df = self.select_objects()
+        pid = self.pick_pid()
+        return df[df['상품정보'].isin(pid)]

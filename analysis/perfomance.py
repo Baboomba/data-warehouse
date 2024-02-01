@@ -350,7 +350,7 @@ class ConversionRate:
         
         def filter_merge(self, start: str):
             result = self.merge()
-            return result[(result['first_payment'] == start)]
+            return result[(result['first_payment'] == pd.to_datetime(start).to_period('M'))]
         
         def filtered_table(self, start, end):
             self.read().filter_data(end).add_month()

@@ -88,6 +88,11 @@ class MemberData:
                 raise ValueError('The size after processing has been different.')
             return self
         
+        def adjust_date_format(self):
+            self.dataframe['보험가입일'] = pd.to_datetime(self.dataframe['보험가입일'], origin='1899-12-30', unit='D')
+            self.dataframe['보험해지일'] = pd.to_datetime(self.dataframe['보험해지일'], origin='1899-12-30', unit='D')
+            self.dataframe['무상 종료일'] = pd.to_datetime(self.dataframe['무상 종료일'], origin='1899-12-30', unit='D')
+        
         def save(self):
             if self.close:
                 self.dataframe.to_parquet(DATA_PATH['member_close'])
@@ -95,7 +100,7 @@ class MemberData:
                 self.dataframe.to_parquet(DATA_PATH['member_list'])
         
         def produce_result(self):
-            self.read_xlsb().concat().alter_type().delete_test_user().verify_sum().save()
+            self.read_xlsb().concat().alter_type().delete_test_user().verify_sum().adjust_date_format().save()
  
     def count_folable5(self) -> None:
         df = pd.read_excel(r'data\raw_data\etc\폴더블5가입자.xlsx')
