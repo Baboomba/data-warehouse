@@ -89,9 +89,11 @@ class MemberData:
             return self
         
         def adjust_date_format(self):
-            self.dataframe['보험가입일'] = pd.to_datetime(self.dataframe['보험가입일'], origin='1899-12-30', unit='D')
-            self.dataframe['보험해지일'] = pd.to_datetime(self.dataframe['보험해지일'], origin='1899-12-30', unit='D')
-            self.dataframe['무상 종료일'] = pd.to_datetime(self.dataframe['무상 종료일'], origin='1899-12-30', unit='D')
+            if self.close:
+                self.dataframe['보험가입일'] = pd.to_datetime(self.dataframe['보험가입일'], origin='1899-12-30', unit='D')
+                self.dataframe['보험해지일'] = pd.to_datetime(self.dataframe['보험해지일'], origin='1899-12-30', unit='D')
+                self.dataframe['무상 종료일'] = pd.to_datetime(self.dataframe['무상 종료일'], origin='1899-12-30', unit='D')
+            return self
         
         def save(self):
             if self.close:

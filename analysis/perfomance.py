@@ -412,6 +412,7 @@ class ConversionRate:
                 mg['PROMOTION_MONTH'] == 36,
                 mg['PROMOTION_MONTH'] == 24,
                 mg['PROMOTION_MONTH'] == 12,
+                mg['PROMOTION_MONTH'] == 9,
                 mg['PROMOTION_MONTH'] == 6,
                 mg['PROMOTION_MONTH'] == 3
             ]
@@ -420,6 +421,7 @@ class ConversionRate:
                 mg['보험가입일'] + pd.DateOffset(months=36),
                 mg['보험가입일'] + pd.DateOffset(months=24),
                 mg['보험가입일'] + pd.DateOffset(months=12),
+                mg['보험가입일'] + pd.DateOffset(months=9),
                 mg['보험가입일'] + pd.DateOffset(months=6),
                 mg['보험가입일'] + pd.DateOffset(months=3)
             ]
