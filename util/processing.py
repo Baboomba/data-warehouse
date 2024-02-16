@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def synchronize_date_column_type(df: pd.DataFrame, cols: list) -> pd.DataFrame:
+def alter_type_to_date(df: pd.DataFrame, cols: list) -> pd.DataFrame:
     '''
     Parameter
     ---
