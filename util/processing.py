@@ -40,5 +40,8 @@ class ConcatTossPaymentMerged:
         self._read_df.to_parquet(self._path)
     
     def _main(self):
-        self._alter_type_to_date()._concat_dataframe()._remove_duplicated_rows()._write_to_parquet()
+        self._alter_type_to_date()\
+            ._concat_dataframe()\
+            ._remove_duplicated_rows()\
+            ._write_to_parquet()
         print('work completed!')
