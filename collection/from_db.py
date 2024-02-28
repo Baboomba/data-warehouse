@@ -1,4 +1,5 @@
 from config import DATA_DIR
+from datetime import datetime
 import math
 import os
 import pandas as pd
@@ -11,7 +12,7 @@ class DevideCloseFile:
     date >> '2024-01-01' 파일명에 들어가는 이름
     '''
     def __init__(self, date: str):
-        self.date = date
+        self.date = date.replace('-', '')
         self.data = self.read()
         self.data_dic = {}
         self.result()
@@ -34,7 +35,7 @@ class DevideCloseFile:
             
             for idx in range(limit):
                 temp = data.iloc[idx * 1000000 : (idx + 1) * 1000000, :]
-                temp.to_csv(fr'result\{self.date}_SCP_{key}_{idx}.csv', encoding='euc-kr', index=False)
+                temp.to_csv(fr'result\{self.date}_CLOSE_SCP_{key}_{idx}.csv', encoding='euc-kr', index=False)
     
     def result(self):
         self.devide_data().to_csv()
