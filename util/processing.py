@@ -23,7 +23,7 @@ class ConcatTossPaymentMerged:
 
     def _alter_type_to_date(self):
         print(f'Target Columns : {self._cols}')
-        for col in self.cols:
+        for col in self._cols:
             self._input_df[col] = pd.to_datetime(self._input_df[col])
         return self
     
