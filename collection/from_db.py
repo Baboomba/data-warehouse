@@ -11,15 +11,20 @@ class DevideCloseFile:
     ---
     date >> '2024-01-01' 파일명에 들어가는 이름
     '''
-    def __init__(self, date: str):
+    def __init__(self, date: str, promotion: bool=False):
         self.date = date.replace('-', '')
         self.data = self.read()
         self.data_dic = {}
-        self.result()
+        self.result(promotion)
     
     def read(self):
         files = os.listdir(DATA_DIR['extracted'])
         return pd.read_csv(fr'{DATA_DIR["extracted"]}\{files[0]}', delimiter=',')
+    
+    def select_promotion(self, promotion: bool):
+        if promotion:
+            self.data = self.data[self.data['유무상 구분'] == '무상']
+        return self
 
     def devide_data(self):
         self.data_dic['2020'] = self.data[self.data['정산년도'] == 2020]
@@ -37,5 +42,7 @@ class DevideCloseFile:
                 temp = data.iloc[idx * 1000000 : (idx + 1) * 1000000, :]
                 temp.to_csv(fr'result\{self.date}_CLOSE_SCP_{key}_{idx}.csv', encoding='euc-kr', index=False)
     
-    def result(self):
-        self.devide_data().to_csv()
+    def result(self, promotion):
+        self.select_promotion(promotion)\
+            .devide_data()\
+            .to_csv()
