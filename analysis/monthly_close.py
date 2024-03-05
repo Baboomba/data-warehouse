@@ -358,9 +358,23 @@ class ConversionClassification:
         con['유무상 구분'] = np.where(condition, '무상', con['유무상 구분'])
         return con
     
-    def order_cols(self):
+    def date_to_str(self):
         con = self.correct_conversion()
-        con = con[['POLICY_ID', '접수번호', '유무상 구분', '접수날짜', '무상 종료일', '무상종료 전/후']]
+        cols = ['접수날짜', '무상 종료일']
+        
+        for col in cols:
+            con[col] = con[col].dt.strftime('%Y-%m-%d')
+
+        return con
+    
+    def add_empty_col(self):
+        con = self.date_to_str()
+        con['기준'] = None
+        return con
+    
+    def order_cols(self):
+        con = self.add_empty_col()
+        con = con[['POLICY_ID', '접수번호', '유무상 구분', '기준', '접수날짜', '무상 종료일', '무상종료 전/후']]
         return con
     
     def save_data(self, save: bool):
@@ -370,6 +384,9 @@ class ConversionClassification:
     
     
 class PromotionProductCount:
+    '''
+    무상상품 수량 산출
+    '''
     def __init__(self, save: bool=False):
         self.dataframe = None
         self.category = None
