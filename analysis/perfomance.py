@@ -214,16 +214,35 @@ class MonthlyJoin(MainIndex):
         print('결제 건수 그룹화 테이블 생성')
         return merge
     
+    def count_flagship(self):
+        table = pd.DataFrame(self.table)
+        model = pd.read_parquet(DATA_PATH['product_model_detail'])[['MODEL_NAME', 'PET_SHORT']]
+        model.rename(columns={'MODEL_NAME':'가입모델명', 'PET_SHORT':'기종'}, inplace=True)
+        
+        # 테이블 병합
+        table = pd.merge(table, model, on='가입모델명', how='left')
+
+        # table = table[table['기종'].isin(['S24', 'S23', 'S22']) & (table['보험가입월'] >= '2024-02')]
+        table = table[table['기종'].isin(['S24', 'S23', 'S22'])]
+        table = table.groupby(['보험가입월', '기종', '프로모션유무'])['상품정보'].count().reset_index()
+        table.rename(columns={'상품정보':'가입자수'}, inplace=True)
+        table['년'] = table['보험가입월'].str[:4] + '년'
+        table['월'] = table['보험가입월'].str[5:].astype(int).astype(str) + '월'
+        
+        return table        
+    
     def result_table_dic(self):
         dic = {}
         user = self.monthly_user_table()
         product = self.monthly_product_table()
         holding = self.holding_user_table()
         payment = self.payment_number_table()
+        flagship = self.count_flagship()
         dic['user_pivot'] = user
         dic['product_pivot'] = product
         dic['holding_pivot'] = holding
         dic['payment_number'] = payment
+        dic['flagship_number'] = flagship
         print('결과 테이블 딕셔너리 반환')
         return dic
     

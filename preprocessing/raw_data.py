@@ -93,6 +93,7 @@ class MemberData:
                 self.dataframe['보험가입일'] = pd.to_datetime(self.dataframe['보험가입일'], origin='1899-12-30', unit='D')
                 self.dataframe['보험해지일'] = pd.to_datetime(self.dataframe['보험해지일'], origin='1899-12-30', unit='D')
                 self.dataframe['무상 종료일'] = pd.to_datetime(self.dataframe['무상 종료일'], origin='1899-12-30', unit='D')
+                self.dataframe['START_DATE'] = pd.to_datetime(self.dataframe['START_DATE'], origin='1899-12-30', unit='D').dt.strftime('%Y-%m-%d')
             return self
         
         def save(self):
@@ -102,7 +103,13 @@ class MemberData:
                 self.dataframe.to_parquet(DATA_PATH['member_list'])
         
         def produce_result(self):
-            self.read_xlsb().concat().alter_type().delete_test_user().verify_sum().adjust_date_format().save()
+            self.read_xlsb().\
+                concat().\
+                alter_type().\
+                delete_test_user().\
+                verify_sum().\
+                adjust_date_format().\
+                save()
  
     def count_folable5(self) -> None:
         df = pd.read_excel(r'data\raw_data\etc\폴더블5가입자.xlsx')
@@ -276,7 +283,7 @@ class ExternalRawData:
             table = self.process_insurance_data()
             table_pre = self.read_insurance()
             print('보험금 공지 데이터 병합 완료')
-            return pa.concat_tables([table, table_pre])
+            return pa.concat_tables([table_pre, table])
         
         def save_concat(self) -> None:
             table = self.concat_ins_files()
