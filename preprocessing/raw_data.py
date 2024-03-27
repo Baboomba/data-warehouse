@@ -171,9 +171,9 @@ class ExternalRawData:
             self.to_dataframe().concat().to_excel(to_excel).add_to_previous(add_to_pre).save(save)
 
     class TossClose:
-        def __init__(self, add_to_previous: bool=False, align: bool=False, save: bool=False):
+        def __init__(self, add_to_pre: bool=False, align: bool=False, save: bool=False):
             self.dataframe = self.read_data()
-            self.result(add_to_previous, align, save)
+            self.result(add_to_pre, align, save)
         
         def read_data(self):
             file = os.listdir(DATA_DIR['toss'])
@@ -207,9 +207,9 @@ class ExternalRawData:
             'POLICY_ID'
         ]
         
-        def __init__(self, save: bool=False, add_to_previous: bool=False):
+        def __init__(self, save: bool=False, add_to_pre: bool=False):
             self.dataframe = self.merge()
-            self.result(save, add_to_previous)
+            self.result(save, add_to_pre)
         
         def read_toss(self):
             return pd.read_parquet(DATA_PATH['toss_raw'], engine='pyarrow')[['매출일', '주문번호', '결제상태']]
@@ -248,8 +248,8 @@ class ExternalRawData:
             if save:
                 self.dataframe.to_parquet(DATA_PATH['toss_payment'])
         
-        def result(self, save, add_to_previous):
-            self.adjust(True).format_date().select_columns().add_to_previous(add_to_previous).adjust(False).save(save)
+        def result(self, save, add_to_pre):
+            self.adjust(True).format_date().select_columns().add_to_previous(add_to_pre).adjust(False).save(save)
        
     class Insurance:
         '''
@@ -257,12 +257,12 @@ class ExternalRawData:
         
         Parameter
         ---
-        execute : True 설정 시, 실행과 저장 동시 수행
+        run : True 설정 시, 실행과 저장 동시 수행
         '''
-        def __init__(self, run: bool):
+        def __init__(self):
             self.path = DATA_PATH['insurance']
             self.dir = DATA_DIR['insurance']
-            self.insurance_notice(run)
+            self.insurance_notice()
         
         def read_insurance(self):
             return pq.read_table(self.path)
@@ -290,7 +290,6 @@ class ExternalRawData:
             pq.write_table(table, self.path)
             print('보험금 공지 데이터 저장 완료')
             
-        def insurance_notice(self, run: bool):
-            if run:
-                self.save_concat()
+        def insurance_notice(self):
+            self.save_concat()
         
