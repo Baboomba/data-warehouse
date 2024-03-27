@@ -161,10 +161,10 @@ class MonthlyJoin(MainIndex):
         '미납여부'
     ]
     
-    def __init__(self, save: bool):
+    def __init__(self, to_excel: bool):
         super().__init__()
         self.result_tables = self.result_table_dic()
-        self.save_dataframe(save)
+        self.save_dataframe(to_excel)
 
     def new_user(self):
         join = pd.DataFrame(self.table.groupby(self.user_group)['상품정보'].count()).reset_index()
@@ -246,8 +246,8 @@ class MonthlyJoin(MainIndex):
         print('결과 테이블 딕셔너리 반환')
         return dic
     
-    def save_dataframe(self, save: bool):
-        if save:
+    def save_dataframe(self, to_excel: bool):
+        if to_excel:
             new_sht = [key for key in self.result_tables.keys()]
             print('엑셀 파일 생성 중...')
             wb = xl.Workbook()
@@ -285,10 +285,10 @@ class ConversionRate:
     
     end : '2023-08-31' 형식 / 마감 월에 맞춰 입력
     '''
-    def __init__(self, start: str, end: str=None, save: bool=True):
+    def __init__(self, start: str, end: str=None, to_excel: bool=True):
         self.date = start
         self.conversion_dic = self.__extract_data(start, end)
-        self.__save_dataframe(save)
+        self.__save_dataframe(to_excel)
     
     def __extract_data(self, start: str, end: str):
         conversion_dic = {}
@@ -298,8 +298,8 @@ class ConversionRate:
         conversion_dic['exp'] = exp
         return conversion_dic
     
-    def __save_dataframe(self, save: bool):
-        if save:
+    def __save_dataframe(self, to_excel: bool):
+        if to_excel:
             new_sht = [key for key in self.conversion_dic.keys()]
             print('엑셀 파일 생성 중...')
             wb = xl.Workbook()
