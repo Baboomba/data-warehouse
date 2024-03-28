@@ -93,6 +93,7 @@ class MemberData:
                 self.dataframe['보험가입일'] = pd.to_datetime(self.dataframe['보험가입일'], origin='1899-12-30', unit='D')
                 self.dataframe['보험해지일'] = pd.to_datetime(self.dataframe['보험해지일'], origin='1899-12-30', unit='D')
                 self.dataframe['무상 종료일'] = pd.to_datetime(self.dataframe['무상 종료일'], origin='1899-12-30', unit='D')
+            elif ~self.close:
                 self.dataframe['START_DATE'] = pd.to_datetime(self.dataframe['START_DATE'], origin='1899-12-30', unit='D').dt.strftime('%Y-%m-%d')
             return self
         

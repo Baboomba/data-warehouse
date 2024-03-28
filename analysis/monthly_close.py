@@ -98,9 +98,9 @@ class PaidProductCount:
             self.samsung().adjust().check_count().category().adjust().check_count()
                     
     class ProcessAdditionalData(Merge):
-        def __init__(self, save: bool=False):
+        def __init__(self, to_excel: bool=False):
             super().__init__()
-            self.result(save)
+            self.result(to_excel)
         
         def alter_packcode(self):
             code = pd.DataFrame(case_transition)
@@ -177,8 +177,8 @@ class PaidProductCount:
                 now = datetime.now().strftime('%Y%m%d')
                 self.dataframe.to_excel(fr'result\유상마감데이터_{now}.xlsx')
         
-        def result(self, save):
-            self.alter_packcode().process_offset().previous_payment().trim().save(save)
+        def result(self, to_excel):
+            self.alter_packcode().process_offset().previous_payment().trim().save(to_excel)
     
     ## 여기부터 cell_style 메서드까지 미사용 코드    
     def create_result(self, df_join):
