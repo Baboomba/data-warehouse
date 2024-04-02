@@ -30,9 +30,9 @@ class Logger:
     >>> logger.write_log('result has just been saved.')
 
     '''
-    def __init__(self, logger_name: str=None, log_level: str=None, path: str=None, console_log: bool=True) -> None:
+    def __init__(self, log_level: str=None, path: str=None, console_log: bool=True) -> None:
         logging.Logger.manager.loggerDict.clear()
-        self._logger_name = logger_name
+        self._logger_name = None
         self._logger = logging.getLogger(self._logger_name)
         self._console_log = console_log
         self.log_level = log_level
@@ -98,6 +98,14 @@ class Logger:
         
         if self._console_log:
             self.print_log(msg)
+            
+    def write_info(self, msg: str=None):
+        self._logger.setLevel(logging.INFO)
+        self._logger.info(msg)
+        
+    def write_error(self, msg: str=None):
+        self._logger.setLevel(logging.ERROR)
+        self._logger.error(msg)
     
     def print_log(self, msg: str=None):
         formatted_msg = self._formatter.format(logging.LogRecord(
