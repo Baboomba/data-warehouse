@@ -13,7 +13,7 @@ class DBConnection:
     def __init__(self, log_level: str='error', log_path : str='db'):
         self.logger = Logger(log_level, log_path, False)
     
-    def connect_to_db(self):
+    def _connect_to_db(self):
         try:
             con = oracledb.connect(
                 dsn=self._dsn,
@@ -26,11 +26,11 @@ class DBConnection:
         
         return con
     
-    def execute_query(self, query: str=None, **kwargs):
+    def execute_query(self, query: str=None, to_df: bool=True, **kwargs):
         con = None
         
         try:
-            con = self.connect_to_db()
+            con = self._connect_to_db()
             cur = con.cursor()
             cur.execute(query, **kwargs)
             results = cur.fetchall()
@@ -42,10 +42,14 @@ class DBConnection:
             if con is not None:
                 con.close()
                 self.logger.write_info('database connection closed')
-        
-        df = pd.DataFrame(data=results, columns=columns)
+                
+                if to_df:
+                    df = self._create_dataframe(results, columns)
+                    return df
+                
+        return results, columns
+    
+    def _create_dataframe(self, fetch_result: List[Tuple], columns: list):
+        df = pd.DataFrame(fetch_result, columns)
         self.logger.write_info('A dataframe has been created from the results')
         return df
-    
-    def create_dataframe(self, fetch_result: List[Tuple], columns: list):
-        return pd.DataFrame(fetch_result, columns=columns)
