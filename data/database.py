@@ -27,6 +27,8 @@ class DBConnection:
         return con
     
     def execute_query(self, query: str=None, **kwargs):
+        con = None
+        
         try:
             con = self.connect_to_db()
             cur = con.cursor()
@@ -37,8 +39,9 @@ class DBConnection:
         except Exception as e:
             raise self.logger.write_log(f'{e} : statement was "{query}"')
         finally:
-            con.close()
-            self.logger.write_info('database connection closed')
+            if con is not None:
+                con.close()
+                self.logger.write_info('database connection closed')
         
         df = pd.DataFrame(data=results, columns=columns)
         self.logger.write_info('A dataframe has been created from the results')
