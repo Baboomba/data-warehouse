@@ -50,6 +50,6 @@ class DBConnection:
         return results, columns
     
     def _create_dataframe(self, fetch_result: List[Tuple], columns: list):
-        df = pd.DataFrame(fetch_result, columns)
+        df = pd.DataFrame(fetch_result, columns=columns)
         self.logger.write_info('A dataframe has been created from the results')
         return df
