@@ -35,9 +35,9 @@ class DBConnection:
             cur.execute(query, **kwargs)
             results = cur.fetchall()
             columns = [col[0] for col in cur.description]
-            self.logger.write_info(f'statement "{query}" executed and fetched the results')
+            self.logger.write_info(f'SQL statement {query} executed and fetched the results')
         except Exception as e:
-            raise self.logger.write_log(f'{e} : statement was "{query}"')
+            raise self.logger.write_log(f'{e} : statement was wrong, {query}')
         finally:
             if con is not None:
                 con.close()

@@ -1,5 +1,6 @@
 from config import DATA_DIR
-from datetime import datetime
+from data.database import DBConnection
+from data.query import QuerySet
 import math
 import os
 import pandas as pd
@@ -46,3 +47,18 @@ class DevideCloseFile:
         self.select_promotion(promotion)\
             .devide_data()\
             .to_csv()
+
+
+class Extraction:
+    def __init__(self):
+        pass
+    
+    @staticmethod
+    def get_sales_performance(start: str=None) -> pd.DataFrame:
+        query = QuerySet.sales_performance(start)
+        db = DBConnection()
+        return db.execute_query(query)
+    
+    
+    
+    
