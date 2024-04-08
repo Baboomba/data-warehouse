@@ -95,11 +95,11 @@ class QuerySet:
             , A.INSURER_CODE AS "보험사"
             , DECODE(A.STATUS_CODE, 'ACTV', '가입', 'SUSPEND', '미납', 'TRMNREQTD', '해지예약', 'TRMNTD', '해지') AS "보험상태"
             , A.TAG_CODE AS "비대면솔루션값"
-            , TO_CHAR(ADD_MONTHS(A.START_DATE,B.PROMOTION_MONTH),'YYYY-MM-DD') AS "무상 종료일"
+            , TO_CHAR(ADD_MONTHS(A.START_DATE, B.PROMOTION_MONTH),'YYYY-MM-DD') AS "무상 종료일"
             , CASE B.CATE_FIRST
                     WHEN '유상상품' THEN '유상'
                     WHEN '프로모션' THEN
-                        CASE WHEN TO_CHAR(ADD_MONTHS(A.START_DATE,B.PROMOTION_MONTH),'YYYYMMDD') < TO_CHAR(SYSDATE,'YYYYMMDD')  THEN '전환'
+                        CASE WHEN TO_CHAR(ADD_MONTHS(A.START_DATE, B.PROMOTION_MONTH), 'YYYYMMDD') < TO_CHAR(SYSDATE, 'YYYYMMDD')  THEN '전환'
                         ELSE '무상'
                         END
                     ELSE '오류' || '-' ||B.CATE_FIRST
@@ -117,7 +117,7 @@ class QuerySet:
         AND B.PROGRAM_CODE NOT LIKE 'KORSTG%'
         ORDER BY A.START_DATE ASC
         '''
-        return end_date
+        return sentence
     
     @staticmethod
     def claim(end_date: str=None) -> str:
@@ -143,7 +143,21 @@ class QuerySet:
         INNER JOIN SC_TPA.TB_CLAIM_REPAIR TCR
         ON TCL.CLAIM_ID = TCR.CLAIM_ID
         WHERE EVENT_TYPE='RepairDetail'
-        AND TCL.START_DATE BETWEEN TO_DATE('{start_date}') AND TO_DATE('{end_date}')
+        AND TCL.START_DATE BETWEEN TO_DATE('{start_date}', 'YYYY-MM-DD') AND TO_DATE('{end_date}', 'YYYY-MM-DD')
         ORDER BY TCL.MOD_DTM
+        '''
+        return sentence
+    
+    @staticmethod
+    def program_info() -> str:
+        '''
+        프로그램 인포 테이블.
+        
+        파라미터 없음.
+        '''
+        sentence = '''
+        SELECT
+            *
+        FROM SC_TPA.TB_PROGRAM_INFO
         '''
         return sentence

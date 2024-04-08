@@ -59,6 +59,20 @@ class Extraction:
         db = DBConnection()
         return db.execute_query(query)
     
+    @staticmethod
+    def get_member_list(end_date: str=None) -> pd.DataFrame:
+        query = QuerySet.member_list(end_date)
+        db = DBConnection()
+        return db.execute_query(query)
     
+    @staticmethod
+    def get_member_close(end_date: str=None) -> pd.DataFrame:
+        query = QuerySet.member_close(end_date)
+        db = DBConnection()
+        return db.execute_query(query)
     
-    
+    @staticmethod
+    def get_claim(end_date: str=None) -> pd.DataFrame:
+        query = QuerySet.claim(end_date)
+        db = DBConnection()
+        return db.execute_query(query)
