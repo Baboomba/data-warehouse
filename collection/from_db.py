@@ -60,6 +60,12 @@ class Extraction:
         return db.execute_query(query)
     
     @staticmethod
+    def get_techno_performance(start: str=None) -> pd.DataFrame:
+        query = QuerySet.technomart_performance(start)
+        db = DBConnection()
+        return db.execute_query(query)
+    
+    @staticmethod
     def get_member_list(end_date: str=None) -> pd.DataFrame:
         query = QuerySet.member_list(end_date)
         db = DBConnection()

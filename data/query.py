@@ -39,6 +39,32 @@ class QuerySet:
         return sentence
     
     @staticmethod
+    def technomart_performance(start_date: str=None) -> str:
+        sentence = f'''
+         SELECT
+            TO_CHAR(c.start_date, 'YYYYMMDD') registration_date
+            , m.model_pet_name model
+            , c.program_code product_id
+            , p.program_full_name product_name
+            , c.cid CID
+            , c.shop_code store_id
+            , c.sales_pro agent
+            , c.policy_id
+            , SUBSTR(SC_TPA.CRYPT.DECRYPT(c.full_name, 'FAME_TPA'), 1, 1) || '*' || SUBSTR(SC_TPA.CRYPT.DECRYPT(c.full_name, 'FAME_TPA'), 3, 3) name
+            , SUBSTR(SC_TPA.CRYPT.DECRYPT(c.phone_number, 'FAME_TPA'), 1, 3) || '****' || SUBSTR(SC_TPA.CRYPT.DECRYPT(c.phone_number, 'FAME_TPA'), 8, 11) phone_number
+        FROM sc_tpa.tb_contract c
+        LEFT JOIN sc_tpa.tb_program_info p
+        ON c.program_code = p.program_code
+        LEFT JOIN sc_tpa.tb_model m
+        ON c.enrolled_model = m.model_name
+        WHERE 1=1
+        AND c.start_date >= TO_DATE('{start_date}', 'YYYY-MM-DD')
+        AND c.cid in ('Technomart_SDR', 'Technomart_GB')
+        ORDER BY c.start_date ASC
+        '''
+        return sentence
+    
+    @staticmethod
     def member_list(end_date) -> str:
         '''
         Parameter

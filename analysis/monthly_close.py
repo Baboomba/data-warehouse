@@ -305,8 +305,8 @@ class ConversionClassification:
     
     인스턴스 생성 시 회원넘버, 접수번호 데이터프레임 입력
     '''
-    def __init__(self, dataframe, save: bool):
-        self.basic_data = dataframe
+    def __init__(self, df: pd.DataFrame=None, save: bool=False):
+        self.basic_data = df
         self.member_path = DATA_PATH['member_close']
         self.save_data(save)
         
