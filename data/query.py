@@ -65,40 +65,71 @@ class QuerySet:
         return sentence
     
     @staticmethod
-    def member_list(end_date) -> str:
+    def member_list(end_date: str=None, promotion_only: bool=None) -> str:
         '''
         Parameter
         ---
         end_date : 해당 날짜까지의 데이터. 마감일 기준으로 입력
         '''
-        sentence = f'''
-        SELECT
-            TP.PROGRAM_CODE AS "상품정보"
-            , TP.PROGRAM_NAME AS "프로그램명"
-            , TP.MONTHLY_PREMIUM AS "월요금"
-            , TC.POLICY_ID
-            , TC.ENROLLED_MODEL AS "가입모델명"
-            , SC_TPA.CRYPT.DECRYPT(TC.FULL_NAME, 'FAME_TPA') AS "이름"
-            , SC_TPA.CRYPT.DECRYPT(TC.PHONE_NUMBER, 'FAME_TPA') AS "연락처"
-            , TC.IDENTIFICATION_NUMBER AS "생년월일"
-            , JSON_VALUE(SC_TPA.CRYPT.DECRYPT(TC.SERIAL_NUMBER_JSON, 'FAME_TPA'), '$.device') AS "시리얼번호"
-            , DECODE(TC.IMEI, NULL, '', DECODE(SC_TPA.CRYPT.DECRYPT(TC.IMEI, 'FAME_TPA'), '', '', SC_TPA.CRYPT.DECRYPT(TC.IMEI, 'FAME_TPA'))) AS "IMEI"
-            , TO_CHAR(TC.EULA_DATE, 'YYYY-MM-DD') AS "최초통화일"
-            , TO_CHAR(TC.START_DATE, 'YYYY-MM-DD') AS "보험가입일"
-            , TO_CHAR(TC.END_DATE, 'YYYY-MM-DD') AS "보험해지일"
-            , TC.INSURER_CODE AS "보험사"
-            , DECODE(TC.STATUS_CODE, 'ACTV', '가입', 'SUSPEND', '미납', 'TRMNREQTD', '해지예약', 'TRMNTD', '해지') AS "보험상태"
-            , TC.TAG_CODE AS "비대면솔루션값"
-            , TP.PROMOTION_YN AS 프로모션유무
-            , TC.START_DATE
-        FROM SC_TPA.TB_CONTRACT TC
-        INNER JOIN SC_TPA.TB_PROGRAM_INFO TP
-        ON TC.PROGRAM_CODE = TP.PROGRAM_CODE
-        WHERE 1=1
-        AND TC.START_DATE <= TO_DATE('{end_date}', 'YYYY-MM-DD')
-        AND TP.PROGRAM_CODE NOT LIKE 'KORSTG%' -- 테스트 데이터 삭제
-        ORDER BY TC.START_DATE
-        '''
+        if not promotion_only:
+            sentence = f'''
+            SELECT
+                TP.PROGRAM_CODE AS "상품정보"
+                , TP.PROGRAM_NAME AS "프로그램명"
+                , TP.MONTHLY_PREMIUM AS "월요금"
+                , TC.POLICY_ID
+                , TC.ENROLLED_MODEL AS "가입모델명"
+                , SC_TPA.CRYPT.DECRYPT(TC.FULL_NAME, 'FAME_TPA') AS "이름"
+                , SC_TPA.CRYPT.DECRYPT(TC.PHONE_NUMBER, 'FAME_TPA') AS "연락처"
+                , TC.IDENTIFICATION_NUMBER AS "생년월일"
+                , JSON_VALUE(SC_TPA.CRYPT.DECRYPT(TC.SERIAL_NUMBER_JSON, 'FAME_TPA'), '$.device') AS "시리얼번호"
+                , DECODE(TC.IMEI, NULL, '', DECODE(SC_TPA.CRYPT.DECRYPT(TC.IMEI, 'FAME_TPA'), '', '', SC_TPA.CRYPT.DECRYPT(TC.IMEI, 'FAME_TPA'))) AS "IMEI"
+                , TO_CHAR(TC.EULA_DATE, 'YYYY-MM-DD') AS "최초통화일"
+                , TO_CHAR(TC.START_DATE, 'YYYY-MM-DD') AS "보험가입일"
+                , TO_CHAR(TC.END_DATE, 'YYYY-MM-DD') AS "보험해지일"
+                , TC.INSURER_CODE AS "보험사"
+                , DECODE(TC.STATUS_CODE, 'ACTV', '가입', 'SUSPEND', '미납', 'TRMNREQTD', '해지예약', 'TRMNTD', '해지') AS "보험상태"
+                , TC.TAG_CODE AS "비대면솔루션값"
+                , TP.PROMOTION_YN AS 프로모션유무
+                , TC.START_DATE
+            FROM SC_TPA.TB_CONTRACT TC
+            INNER JOIN SC_TPA.TB_PROGRAM_INFO TP
+            ON TC.PROGRAM_CODE = TP.PROGRAM_CODE
+            WHERE 1=1
+            AND TC.START_DATE <= TO_DATE('{end_date}', 'YYYY-MM-DD')
+            AND TP.PROGRAM_CODE NOT LIKE 'KORSTG%' -- 테스트 데이터 삭제
+            ORDER BY TC.START_DATE
+            '''
+        else:
+            sentence = f'''
+            SELECT
+                TP.PROGRAM_CODE AS "상품정보"
+                , TP.PROGRAM_NAME AS "프로그램명"
+                , TP.MONTHLY_PREMIUM AS "월요금"
+                , TC.POLICY_ID
+                , TC.ENROLLED_MODEL AS "가입모델명"
+                , SC_TPA.CRYPT.DECRYPT(TC.FULL_NAME, 'FAME_TPA') AS "이름"
+                , SC_TPA.CRYPT.DECRYPT(TC.PHONE_NUMBER, 'FAME_TPA') AS "연락처"
+                , TC.IDENTIFICATION_NUMBER AS "생년월일"
+                , JSON_VALUE(SC_TPA.CRYPT.DECRYPT(TC.SERIAL_NUMBER_JSON, 'FAME_TPA'), '$.device') AS "시리얼번호"
+                , DECODE(TC.IMEI, NULL, '', DECODE(SC_TPA.CRYPT.DECRYPT(TC.IMEI, 'FAME_TPA'), '', '', SC_TPA.CRYPT.DECRYPT(TC.IMEI, 'FAME_TPA'))) AS "IMEI"
+                , TO_CHAR(TC.EULA_DATE, 'YYYY-MM-DD') AS "최초통화일"
+                , TO_CHAR(TC.START_DATE, 'YYYY-MM-DD') AS "보험가입일"
+                , TO_CHAR(TC.END_DATE, 'YYYY-MM-DD') AS "보험해지일"
+                , TC.INSURER_CODE AS "보험사"
+                , DECODE(TC.STATUS_CODE, 'ACTV', '가입', 'SUSPEND', '미납', 'TRMNREQTD', '해지예약', 'TRMNTD', '해지') AS "보험상태"
+                , TC.TAG_CODE AS "비대면솔루션값"
+                , TP.PROMOTION_YN AS 프로모션유무
+                , TC.START_DATE
+            FROM SC_TPA.TB_CONTRACT TC
+            INNER JOIN SC_TPA.TB_PROGRAM_INFO TP
+            ON TC.PROGRAM_CODE = TP.PROGRAM_CODE
+            WHERE 1=1
+            AND TC.START_DATE <= TO_DATE('{end_date}', 'YYYY-MM-DD')
+            AND TP.PROGRAM_CODE NOT LIKE 'KORSTG%' -- 테스트 데이터 삭제
+            AND TP.PROMOTION_YN = 'Y'
+            ORDER BY TC.START_DATE
+            '''
         return sentence
     
     @staticmethod

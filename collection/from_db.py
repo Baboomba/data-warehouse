@@ -4,10 +4,12 @@ from data.query import QuerySet
 import math
 import os
 import pandas as pd
+from pandas import DataFrame
 
 
 class DevideCloseFile:
     '''
+    오라클에서 추출한 csv 파일을 정산년도에 따라 나누는 코드
     Parameter
     ---
     date >> '2024-01-01' 파일명에 들어가는 이름
@@ -54,31 +56,31 @@ class Extraction:
         pass
     
     @staticmethod
-    def get_sales_performance(start: str=None) -> pd.DataFrame:
+    def get_sales_performance(start: str=None) -> DataFrame:
         query = QuerySet.sales_performance(start)
         db = DBConnection()
         return db.execute_query(query)
     
     @staticmethod
-    def get_techno_performance(start: str=None) -> pd.DataFrame:
+    def get_techno_performance(start: str=None) -> DataFrame:
         query = QuerySet.technomart_performance(start)
         db = DBConnection()
         return db.execute_query(query)
     
     @staticmethod
-    def get_member_list(end_date: str=None) -> pd.DataFrame:
+    def get_member_list(end_date: str=None) -> DataFrame:
         query = QuerySet.member_list(end_date)
         db = DBConnection()
         return db.execute_query(query)
     
     @staticmethod
-    def get_member_close(end_date: str=None) -> pd.DataFrame:
+    def get_member_close(end_date: str=None) -> DataFrame:
         query = QuerySet.member_close(end_date)
         db = DBConnection()
         return db.execute_query(query)
     
     @staticmethod
-    def get_claim(end_date: str=None) -> pd.DataFrame:
+    def get_claim(end_date: str=None) -> DataFrame:
         query = QuerySet.claim(end_date)
         db = DBConnection()
         return db.execute_query(query)
