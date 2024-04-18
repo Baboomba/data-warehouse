@@ -1,10 +1,10 @@
-from config import DATA_DIR
 from data.database import DBConnection
 from data.query import QuerySet
 import math
 import os
 import pandas as pd
 from pandas import DataFrame
+from util.config_reader import DATA_DIR
 
 
 class DevideCloseFile:
@@ -21,8 +21,8 @@ class DevideCloseFile:
         self.result(promotion)
     
     def read(self):
-        files = os.listdir(DATA_DIR['extracted'])
-        return pd.read_csv(fr'{DATA_DIR["extracted"]}\{files[0]}', delimiter=',')
+        files = os.listdir(DATA_DIR('extracted'))
+        return pd.read_csv(fr'{DATA_DIR("extracted")}\{files[0]}', delimiter=',')
     
     def select_promotion(self, promotion: bool):
         if promotion:

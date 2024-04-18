@@ -1,7 +1,7 @@
-from config import LOG_DIR, LOG_SETTINGS
 from datetime import datetime
 import logging
 import os
+from util.config_reader import LOG_DIR, LOG_SETTINGS
 
 
 class Logger:
@@ -47,14 +47,14 @@ class Logger:
         self._make_diretory(path)
         time = datetime.now().strftime('%Y%m%d%H%M%S')
         file_name = fr'{path}_{time}.log'
-        return fr'{LOG_DIR[path]}/{file_name}'
+        return fr'{LOG_DIR(path)}/{file_name}'
     
     def _make_diretory(self, path):
         '''
         LOG_DIR에 적힌 경로에 디렉터리가 없을 경우 생성하는 메서드
         '''
-        if not os.path.exists(LOG_DIR[path]):
-            os.makedirs(LOG_DIR[path])
+        if not os.path.exists(LOG_DIR(path)):
+            os.makedirs(LOG_DIR(path))
         else:
             pass
         
@@ -138,8 +138,8 @@ class Logger:
         '''
         return logging.FileHandler(
             filename=self._file_name,
-            mode=LOG_SETTINGS['mode'],
-            encoding=LOG_SETTINGS['encoding']
+            mode=LOG_SETTINGS('mode'),
+            encoding=LOG_SETTINGS('encoding')
         )
     
     @set_handler

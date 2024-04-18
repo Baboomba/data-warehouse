@@ -1,4 +1,4 @@
-from config import DATA_DIR, DATA_PATH
+# from config import DATA_DIR, DATA_PATH
 from data.columns import insurance_schema
 from datetime import datetime
 import pandas as pd
@@ -6,6 +6,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 from pyxlsb import open_workbook
 import os
+from util.config_reader import DATA_DIR, DATA_PATH
 
 
 class MemberData:
@@ -23,15 +24,15 @@ class MemberData:
         
         def list_files(self):
             if self.close:
-                return os.listdir(DATA_DIR['member_close'])
+                return os.listdir(DATA_DIR('member_close'))
             else:
-                return os.listdir(DATA_DIR['member_list'])
+                return os.listdir(DATA_DIR('member_list'))
         
         def read_xlsb(self):
             if self.close:
-                dir = DATA_DIR['member_close']
+                dir = DATA_DIR('member_close')
             else:
-                dir = DATA_DIR['member_list']
+                dir = DATA_DIR('member_list')
             
             for _, file in enumerate(self.files):
                 path = fr'{dir}\{file}'
@@ -53,9 +54,9 @@ class MemberData:
         
         def read_csv(self):
             if self.close:
-                dir = DATA_DIR['member_close']
+                dir = DATA_DIR('member_close')
             else:
-                dir = DATA_DIR['member_list']
+                dir = DATA_DIR('member_list')
             
             for num, file in enumerate(self.files):
                 df = pd.read_csv(fr'{dir}\{file}')
@@ -99,9 +100,9 @@ class MemberData:
         
         def save(self):
             if self.close:
-                self.dataframe.to_parquet(DATA_PATH['member_close'])
+                self.dataframe.to_parquet(DATA_PATH('member_close'))
             else:
-                self.dataframe.to_parquet(DATA_PATH['member_list'])
+                self.dataframe.to_parquet(DATA_PATH('member_list'))
         
         def produce_result(self):
             self.read_xlsb().\
@@ -128,12 +129,12 @@ class ExternalRawData:
             self.result(to_excel, add_to_pre, save)
         
         def read_files(self):
-            return os.listdir(DATA_DIR['samsung'])
+            return os.listdir(DATA_DIR('samsung'))
         
         def to_dataframe(self):
             try:
                 for num, file in enumerate(self.files):
-                    file_path = fr'{DATA_DIR["samsung"]}\{file}'
+                    file_path = fr'{DATA_DIR("samsung")}\{file}'
                     with pd.ExcelFile(file_path) as xl:
                         print(f'the {num}th file of the raw data of Samsung has just been read.')
                         sheet_names = xl.sheet_names
@@ -159,14 +160,14 @@ class ExternalRawData:
         
         def add_to_previous(self, add_to_pre: bool):
             if add_to_pre:
-                pre = pd.read_parquet(DATA_PATH['samsung_raw'], engine='pyarrow')
+                pre = pd.read_parquet(DATA_PATH('samsung_raw'), engine='pyarrow')
                 self.dataframe = pd.concat([pre, self.dataframe])
                 self.dataframe.drop_duplicates(inplace=True)
                 self.dataframe.reset_index(drop=True, inplace=True)
             return self
         
         def save(self, save: bool):
-            self.dataframe.to_parquet(DATA_PATH['samsung_raw'])
+            self.dataframe.to_parquet(DATA_PATH('samsung_raw'))
             
         def result(self, to_excel: bool, add_to_pre: bool, save: bool):
             self.to_dataframe().concat().to_excel(to_excel).add_to_previous(add_to_pre).save(save)
@@ -177,12 +178,12 @@ class ExternalRawData:
             self.result(add_to_pre, align, save)
         
         def read_data(self):
-            file = os.listdir(DATA_DIR['toss'])
-            return pd.read_excel(fr'{DATA_DIR["toss"]}\{file[0]}')
+            file = os.listdir(DATA_DIR('toss'))
+            return pd.read_excel(fr'{DATA_DIR("toss")}\{file[0]}')
         
         def add_to_previous(self, add_to_previous):
             if add_to_previous:
-                pre = pd.read_parquet(DATA_PATH['toss_raw'])
+                pre = pd.read_parquet(DATA_PATH('toss_raw'))
                 self.dataframe = pd.concat([pre, self.dataframe])
             return self
         
@@ -194,7 +195,7 @@ class ExternalRawData:
         
         def save(self, save: bool=False):
             if save:
-                self.dataframe.to_parquet(DATA_PATH['toss_raw'])
+                self.dataframe.to_parquet(DATA_PATH('toss_raw'))
         
         def result(self, add_to_previous, align, save):
             self.add_to_previous(add_to_previous).align(align).save(save)
@@ -213,10 +214,10 @@ class ExternalRawData:
             self.result(save, add_to_pre)
         
         def read_toss(self):
-            return pd.read_parquet(DATA_PATH['toss_raw'], engine='pyarrow')[['매출일', '주문번호', '결제상태']]
+            return pd.read_parquet(DATA_PATH('toss_raw'), engine='pyarrow')[['매출일', '주문번호', '결제상태']]
         
         def read_samsung(self):
-            return pd.read_parquet(DATA_PATH['samsung_raw'], engine='pyarrow')[['POLICY_ID', 'PAYMENT_ID', 'PRODUCT_ID']]
+            return pd.read_parquet(DATA_PATH('samsung_raw'), engine='pyarrow')[['POLICY_ID', 'PAYMENT_ID', 'PRODUCT_ID']]
         
         def merge(self):
             ss = self.read_samsung()
@@ -241,13 +242,13 @@ class ExternalRawData:
         
         def add_to_previous(self, add_to_previous: bool):
             if add_to_previous:
-                pre = pd.read_parquet(DATA_PATH['toss_payment'])
+                pre = pd.read_parquet(DATA_PATH('toss_payment'))
                 self.dataframe = pd.concat([pre, self.dataframe])
             return self
         
         def save(self, save: bool):
             if save:
-                self.dataframe.to_parquet(DATA_PATH['toss_payment'])
+                self.dataframe.to_parquet(DATA_PATH('toss_payment'))
         
         def result(self, save, add_to_pre):
             self.adjust(True).format_date().select_columns().add_to_previous(add_to_pre).adjust(False).save(save)
@@ -261,8 +262,8 @@ class ExternalRawData:
         run : True 설정 시, 실행과 저장 동시 수행
         '''
         def __init__(self):
-            self.path = DATA_PATH['insurance']
-            self.dir = DATA_DIR['insurance']
+            self.path = DATA_PATH('insurance')
+            self.dir = DATA_DIR('insurance')
             self.insurance_notice()
         
         def read_insurance(self):
