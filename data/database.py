@@ -11,7 +11,7 @@ class DBConnection:
     _dsn = ORACLE_ACCOUNT['dsn']
     
     def __init__(self, log_level: str='error', log_path : str='db'):
-        self.logger = Logger(log_level, log_path, False)
+        self._logger = Logger(log_level, log_path, False)
     
     def _connect_to_db(self):
         try:
@@ -20,9 +20,9 @@ class DBConnection:
                 user=self._user,
                 password=self._password
             )
-            self.logger.write_info('database connected successfully')
+            self._logger.write_info('database connected successfully')
         except Exception as e:
-            raise self.logger.write_log(e)
+            raise self._logger.write_log(e)
         
         return con
     
@@ -35,13 +35,13 @@ class DBConnection:
             cur.execute(query, **kwargs)
             results = cur.fetchall()
             columns = [col[0] for col in cur.description]
-            self.logger.write_info(f'SQL statement {query} executed and fetched the results')
+            self._logger.write_info(f'SQL statement {query} executed and fetched the results')
         except Exception as e:
-            raise self.logger.write_log(f'{e} : statement was wrong, {query}')
+            raise self._logger.write_log(f'{e} : statement was wrong, {query}')
         finally:
             if con is not None:
                 con.close()
-                self.logger.write_info('database connection closed')
+                self._logger.write_info('database connection closed')
                 
                 if to_df:
                     df = self._create_dataframe(results, columns)
@@ -51,5 +51,5 @@ class DBConnection:
     
     def _create_dataframe(self, fetch_result: List[Tuple], columns: list):
         df = pd.DataFrame(fetch_result, columns=columns)
-        self.logger.write_info('A dataframe has been created from the results')
+        self._logger.write_info('A dataframe has been created from the results')
         return df
