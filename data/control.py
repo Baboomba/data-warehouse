@@ -97,9 +97,18 @@ class ProgramCategoryTable(DBConnection):
         return self
     
     def insert(self,
-               pid: Dict[str]=None,
+               pid: Dict[str, str]=None,
                save: bool=False
         ) -> None:
+        '''
+        신규 상품 추가를 위한 메서드
+        
+        Parameter
+        ---
+        pid : 신규로 유입되는 상품과 제품시리즈로 된 딕셔너리
+        
+        >>> pid = {'KORPRD20200710000760': 'S24'}
+        '''
         self.pid = pid
         self._execute_query().\
         _select_columns().\
@@ -110,7 +119,9 @@ class ProgramCategoryTable(DBConnection):
         _concatenate_data().\
         _set_product_series2().\
         _change_promotion_value().\
-        _set_warranty_type()
+        _set_warranty_type().\
+        _drop_column().\
+        _order_index()
         
         self.logger.write_info('insert ended completely')
         
@@ -158,7 +169,7 @@ class ProgramCategoryTable(DBConnection):
     def _select_records(self) -> 'ProgramCategoryTable':
         # 파라미터로 넣은 PID에 해당하는 레코드만 선별
         self.data = self.data[self.data['상품정보'].isin(list(self.pid.keys()))]
-        self.logger.write_info('the records has been selected by pid_list you input as parameter')
+        self.logger.write_info('the records has been selected by pid you input as parameter')
         return self
     
     def _read_program_category(self) -> 'ProgramCategoryTable':
@@ -206,6 +217,10 @@ class ProgramCategoryTable(DBConnection):
     def _drop_column(self) -> 'ProgramCategoryTable':
         self.data.drop(columns='BATTERY_COUNT', inplace=True)
         self.logger.write_info('battery_count column dropped')
+        return self
+    
+    def _order_index(self) -> 'ProgramCategoryTable':
+        self.data.reset_index(drop=True, inplace=True)
         return self
     
     def _save_data(self) -> None:
