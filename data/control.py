@@ -53,6 +53,7 @@ class ProgramCategoryTable(DBConnection):
     def __init__(self) -> None:
         super().__init__()
         self._query = QuerySet.program_info()
+        self.data = pd.read_parquet(DATA_PATH['program_category'])
     
     def update(
             self,
