@@ -4,6 +4,7 @@ from data.query import QuerySet
 import numpy as np
 import os
 import pandas as pd
+from pandas import DataFrame
 import shutil
 from typing import Dict, Any, List
 
@@ -37,6 +38,44 @@ class BackUp:
             shutil.copy(original_path, backup_path)
         except FileNotFoundError as e:
             print(e)
+
+
+class TableControl(DBConnection):
+    '''
+    특정 테이블에 대해 업데이트를 실행하는 클래스
+    Parameter
+    ---
+    table_name : config 파일 DATA_PATH에 등록된 테이블
+    '''
+    def __init__(self, table_name: str=None) -> None:
+        self._logger = super().logger
+        self.data = pd.read_parquet(DATA_PATH[f'{table_name}'])
+    
+    def read_data(self, table_name: str=None) -> DataFrame:
+        if table_name not in DATA_PATH.keys():
+            raise self._logger.exception('there is no such table')
+        df = pd.read_parquet(DATA_PATH[f'{table_name}'])
+        self._logger.write_info('table has been read')
+        return df
+    
+    def update(
+            self,
+            index: Any=None,
+            column: str=None,
+            value: Any=None
+        ) -> 'TableControl':
+        try:
+            self.data.iloc[index, column] = value
+            self._logger.write_info('data updated successfully')
+        except Exception as e:
+            self._logger.exception(e)
+        return self
+    
+    def insert(self):
+        pass
+    
+    def delete(self):
+        pass
             
 
 class ProgramCategoryTable(DBConnection):
