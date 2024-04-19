@@ -48,7 +48,7 @@ class Logger:
         self._make_diretory(path)
         time = datetime.now().strftime('%Y%m%d%H%M%S')
         file_name = fr'{path}_{time}.log'
-        return fr'{LOG_DIR(path)}/{file_name}'
+        return fr'{LOG_DIR[path]}/{file_name}'
     
     def _make_diretory(self, path):
         '''
