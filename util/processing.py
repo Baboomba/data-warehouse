@@ -11,11 +11,15 @@ class ConcatTossPaymentMerged:
     cols : 날짜 형식으로 변환할 컬럼
     '''
     _path = DATA_PATH['toss_payment_merged']
+    _cols = [
+        '정산액 입금일',
+        '매출일',
+        '결제일'
+    ]
     
     def __init__(self, df: pd.DataFrame, cols: list):
         self._input_df = df
         self._read_df = self._read_file()
-        self._cols = cols
         self._main()
         
     def _read_file(self):
