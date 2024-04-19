@@ -10,8 +10,8 @@ class DBConnection:
     _password = ORACLE_ACCOUNT('password')
     _dsn = ORACLE_ACCOUNT('dsn')
     
-    def __init__(self, log_level: str='error', log_path : str='db'):
-        self._logger = Logger(log_level, log_path, False)
+    def __init__(self, log_level: str='error', log_path : str='db', console_log: bool=False):
+        self._logger = Logger(log_level, log_path, console_log)
     
     def _connect_to_db(self):
         try:

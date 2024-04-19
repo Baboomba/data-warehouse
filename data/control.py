@@ -298,3 +298,80 @@ class ProgramCategoryTable(DBConnection):
     def _save_data(self) -> None:
         self.data.to_parquet(DATA_PATH['program_category'])
         self._logger.write_info('program category data saved successfully')
+
+
+class PIDUpdater(ProgramCategoryTable):
+    
+    cols = [
+        'PROGRAM_CODE',
+        'PROGRAM_NAME',
+        'CATE_FIRST',
+        'CATE_SECOND',
+        'CATE_THIRD',
+        'MONTHLY_PREMIUM',
+        'LOST_COUNT',
+        'REPAIR_COUNT',
+        'BATTERY_COUNT',
+        'ONSITE_COUNT',
+        'LOST_DEDUCTIBLE',
+        'REPAIR_DEDUCTIBLE',
+        'BATTERY_DEDUCTIBLE',
+        'ONSITE_DEDUCTIBLE',
+        'PROMOTION_YN',
+        'SHARE_SS',
+        'SHARE_KB',
+        'SHARE_HW',
+        'SHARE_DB',
+        'SHARE_CS',
+        'PROMOTION_MONTH',
+        'WARRANTY_MONTH',
+        'START_DATE',
+        'END_DATE',
+        'EW_COUNT',
+        'KAKAO_YN',
+        'CLOSE_YEAR',
+        'PROGRAM_DESC',
+        'PROGRAM_FULL_NAME',
+        'STG_PROGRAM_CODE',
+        'PROMOTION_NAME',
+    ]
+    
+    def __init__(self) -> None:
+        super().__init__()
+        self._info_query = QuerySet.program_info()
+        self.info_data = self._read_info()
+    
+    def _read_info(self) -> DataFrame:
+        return self.execute_query(self._info_query)[self.cols]
+    
+    def _drop_test_raws(self) -> None:
+        index = [
+            'KORSTG00000000000001',
+            'KORSTG00000000000002',
+            'KORSTG00000000000003'
+        ]
+        self.info_data = self.info_data[~self.info_data['PROGRAM_CODE'].isin(index)]
+    
+    def get_new_pid(self) -> str:
+        self._drop_test_raws()
+        col = '상품정보'
+        self.info_data.rename(columns={'PROGRAM_CODE':col}, inplace=True)
+        df = pd.concat([self.info_data[col], self.data[col]]).reset_index()
+        df = df[~df[col].duplicated(keep=False)]
+        self.info_data.rename(columns={col:'PROGRAM_CODE'}, inplace=True)
+        
+        if len(df) == 0:
+            self._logger.write_info('there is no data newly updated')
+            return None
+        
+        pid = list(df[col].values)
+        self._logger.write_info(f'new data found. PID : {pid}')
+        return pid
+    
+    def update_category(
+            self,
+            pid_dict: Dict[str, str]=None,
+            save: bool=None
+        ) -> DataFrame:
+        self.insert(pid_dict, save)
+        return self.data
