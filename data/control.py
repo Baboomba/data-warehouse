@@ -361,7 +361,9 @@ class PIDUpdater(ProgramCategoryTable):
         self.info_data.rename(columns={col:'PROGRAM_CODE'}, inplace=True)
         
         if len(df) == 0:
-            self._logger.write_info('there is no data newly updated')
+            msg = 'There is no pid newly added'
+            self._logger.write_info(msg)
+            print(msg)
             return None
         
         pid = list(df[col].values)
@@ -373,5 +375,10 @@ class PIDUpdater(ProgramCategoryTable):
             pid_dict: Dict[str, str]=None,
             save: bool=None
         ) -> DataFrame:
+        '''
+        Parameter
+        ---
+        >>> pid_dict = {'KORSTG00000000000003':'S24'}
+        '''
         self.insert(pid_dict, save)
         return self.data
