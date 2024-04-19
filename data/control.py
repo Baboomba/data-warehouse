@@ -1,3 +1,4 @@
+from config import DATA_PATH, BACK_UP
 import configparser
 from data.database import DBConnection
 from data.query import QuerySet
@@ -7,7 +8,7 @@ import pandas as pd
 from pandas import DataFrame
 import shutil
 from typing import Dict, Any, List
-from util.config_reader import DATA_PATH, BACK_UP
+# from util.config_reader import DATA_PATH, BACK_UP
 
 
 class BackUp:
@@ -29,10 +30,12 @@ class BackUp:
         return f'{self.file_name}_{self.close_date}.parquet'
     
     def create_destination(self):
-        return os.path.join(BACK_UP(self.file_name), self.save_name)
+        # return os.path.join(BACK_UP(self.file_name), self.save_name)
+        return os.path.join(BACK_UP[self.file_name], self.save_name)
     
     def copy(self):
-        original_path = DATA_PATH(self.file_name)
+        # original_path = DATA_PATH(self.file_name)
+        original_path = DATA_PATH[self.file_name]
         backup_path = self.create_destination()
         
         try:
@@ -41,73 +44,74 @@ class BackUp:
             print(e)
 
 
-class TableControl(DBConnection):
-    '''
-    특정 테이블에 대해 업데이트를 실행하는 클래스
-    Parameter
-    ---
-    table_name : config 파일 DATA_PATH에 등록된 테이블
-    '''
-    _config_path = r'config.ini'
-    _path_section = 'DATA_PATH'
+# class TableControl(DBConnection):
+#     '''
+#     특정 테이블에 대해 업데이트를 실행하는 클래스
+#     ini 파일 조작을 기초로 하기 때문에 config.py 파일 사용할 경우 활용하기 어려움
+#     Parameter
+#     ---
+#     table_name : config 파일 DATA_PATH에 등록된 테이블
+#     '''
+#     _config_path = r'config.ini'
+#     _path_section = 'DATA_PATH'
     
-    def __init__(self, table_name: str=None) -> None:
-        super().__init__()
-        self.data = self._read_data(table_name)
-        self._config = configparser.ConfigParser()
-        self._path_value = fr'data\table\{table_name}.parquet'
+#     def __init__(self, table_name: str=None) -> None:
+#         super().__init__()
+#         self.data = self._read_data(table_name)
+#         self._config = configparser.ConfigParser()
+#         self._path_value = fr'data\table\{table_name}.parquet'
     
-    def _read_data(self, table_name: str=None) -> DataFrame:
-        if table_name in self._config.options(self._path_section):
-            raise self._logger.exception('there is no such table')
+#     def _read_data(self, table_name: str=None) -> DataFrame:
+#         if table_name in self._config.options(self._path_section):
+#             raise self._logger.exception('there is no such table')
         
-        df = pd.read_parquet(DATA_PATH(table_name))
-        self._logger.write_info('table has been read')
-        return df
+#         df = pd.read_parquet(DATA_PATH(table_name))
+#         self._logger.write_info('table has been read')
+#         return df
     
-    def create(
-            self,
-            data: DataFrame=None,
-            table_name: str=None
-        ) -> None:
-        self._add_path(table_name)
+#     def create(
+#             self,
+#             data: DataFrame=None,
+#             table_name: str=None
+#         ) -> None:
+#         self._add_path(table_name)
         
-        data.to_parquet(DATA_PATH(table_name))
-        self._logger.write_info(f'table named {table_name} created')
+#         data.to_parquet(DATA_PATH(table_name))
+#         self._logger.write_info(f'table named {table_name} created')
         
-    def _add_path(
-            self,
-            table_name: str=None
-        ) -> None:
-        if self._config.has_option(self._path_section, table_name):
-            raise self._logger.exception('there exists the same table name')
-        else:
-            self._config.read(self._config_path)
-            self._config[self._path_section][f'{table_name}'] = self._path_value
+#     def _add_path(
+#             self,
+#             table_name: str=None
+#         ) -> None:
+#         if self._config.has_option(self._path_section, table_name):
+#             raise self._logger.exception('there exists the same table name')
+#         else:
+#             self._config.read(self._config_path)
+#             self._config[self._path_section][f'{table_name}'] = self._path_value
 
-            with open(self._config_path, 'w') as configfile:
-                self._config.write(configfile)
+#             with open(self._config_path, 'w') as configfile:
+#                 self._config.write(configfile)
             
-            self._logger.write_info(f'added a new section {table_name} to config file')
+#             self._logger.write_info(f'added a new section {table_name} to config file')
     
-    def update(
-            self,
-            index: Any=None,
-            column: str=None,
-            value: Any=None
-        ) -> 'TableControl':
-        try:
-            self.data.iloc[index, column] = value
-            self._logger.write_info('data updated successfully')
-        except Exception as e:
-            self._logger.exception(e)
-        return self
+#     def update(
+#             self,
+#             index: Any=None,
+#             column: str=None,
+#             value: Any=None
+#         ) -> 'TableControl':
+#         try:
+#             self.data.iloc[index, column] = value
+#             self._logger.write_info('data updated successfully')
+#         except Exception as e:
+#             self._logger.exception(e)
+#         return self
     
-    def insert(self):
-        pass
+#     def insert(self):
+#         pass
     
-    def delete(self):
-        pass
+#     def delete(self):
+#         pass
             
 
 class ProgramCategoryTable(DBConnection):
@@ -124,7 +128,8 @@ class ProgramCategoryTable(DBConnection):
     def __init__(self) -> None:
         super().__init__()
         self._query = QuerySet.program_info()
-        self.data = pd.read_parquet(DATA_PATH('program_category'))
+        # self.data = pd.read_parquet(DATA_PATH('program_category'))
+        self.data = pd.read_parquet(DATA_PATH['program_category'])
     
     def update(
             self,
@@ -245,7 +250,7 @@ class ProgramCategoryTable(DBConnection):
         return self
     
     def _read_program_category(self) -> 'ProgramCategoryTable':
-        self._category = pd.read_parquet(DATA_PATH('program_category'))
+        self._category = pd.read_parquet(DATA_PATH['program_category'])
         self._logger.write_info('the file, program_category read successfully')
         return self
     

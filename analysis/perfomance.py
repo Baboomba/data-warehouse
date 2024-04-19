@@ -1,4 +1,5 @@
 from analysis.monthly_close import PaidProductCount
+from config import DATA_PATH
 from data.columns import member_main_column, program_cate_column
 from datetime import datetime
 import numpy as np
@@ -6,7 +7,7 @@ import pandas as pd
 import openpyxl as xl
 from openpyxl.utils.dataframe import dataframe_to_rows
 import os
-from util.config_reader import DATA_PATH
+# from util.config_reader import DATA_PATH
 
 
 class MainIndex:
@@ -15,8 +16,10 @@ class MainIndex:
     
     그룹화 전의 데이터
     '''
-    member_table_path = DATA_PATH('member_list')
-    cate_table_path = DATA_PATH('program_category')
+    # member_table_path = DATA_PATH('member_list')
+    # cate_table_path = DATA_PATH('program_category')
+    member_table_path = DATA_PATH['member_list']
+    cate_table_path = DATA_PATH['program_category']
     
     def __init__(self):
         self.table = self.merge_tables()
@@ -216,7 +219,8 @@ class MonthlyJoin(MainIndex):
     
     def count_flagship(self):
         table = pd.DataFrame(self.table)
-        model = pd.read_parquet(DATA_PATH('product_model_detail'))[['MODEL_NAME', 'PET_SHORT']]
+        # model = pd.read_parquet(DATA_PATH('product_model_detail'))[['MODEL_NAME', 'PET_SHORT']]
+        model = pd.read_parquet(DATA_PATH['product_model_detail'])[['MODEL_NAME', 'PET_SHORT']]
         model.rename(columns={'MODEL_NAME':'가입모델명', 'PET_SHORT':'기종'}, inplace=True)
         
         # 테이블 병합
@@ -339,7 +343,8 @@ class ConversionRate:
             self.result = self.groupby()        
         
         def read(self):
-            self.data = pd.read_parquet(DATA_PATH('toss_payment'))
+            # self.data = pd.read_parquet(DATA_PATH('toss_payment'))
+            self.data = pd.read_parquet(DATA_PATH['toss_payment'])
             return self
         
         def filter_data(self, end: str=None):
@@ -389,8 +394,10 @@ class ConversionRate:
         ---
         date : '2023-08-01' 형식 / 마감 월에 맞춰 입력
         '''
-        member_table_path = DATA_PATH('member_list')
-        info_table_path = DATA_PATH('program_info')
+        # member_table_path = DATA_PATH('member_list')
+        # info_table_path = DATA_PATH('program_info')
+        member_table_path = DATA_PATH['member_list']
+        info_table_path = DATA_PATH['program_info']
         
         def __init__(self, start: str, end: str):
             print('만기 상품 집계 시작')

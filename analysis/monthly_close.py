@@ -1,3 +1,4 @@
+from config import DATA_PATH
 from data.columns import case_transition, untact_column
 from datetime import datetime
 import numpy as np
@@ -5,7 +6,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font
 from openpyxl.utils.dataframe import dataframe_to_rows
 import pandas as pd
-from util.config_reader import DATA_PATH
+# from util.config_reader import DATA_PATH
 
 
 
@@ -54,9 +55,13 @@ class PaidProductCount:
                 '유무상'
             ]
             
-            ts = pd.read_parquet(DATA_PATH('toss_raw'))[_ts_col]
-            ss = pd.read_parquet(DATA_PATH('samsung_raw'))[_ss_col]
-            cate = pd.read_parquet(DATA_PATH('program_category'))[_cate_col]
+            # ini 파일 사용할 경우 사용
+            # ts = pd.read_parquet(DATA_PATH('toss_raw'))[_ts_col]
+            # ss = pd.read_parquet(DATA_PATH('samsung_raw'))[_ss_col]
+            # cate = pd.read_parquet(DATA_PATH('program_category'))[_cate_col]
+            ts = pd.read_parquet(DATA_PATH['toss_raw'])[_ts_col]
+            ss = pd.read_parquet(DATA_PATH['samsung_raw'])[_ss_col]
+            cate = pd.read_parquet(DATA_PATH['program_category'])[_cate_col]
             return [ts, ss, cate]
         
     class Merge(BasicData):
@@ -150,7 +155,8 @@ class PaidProductCount:
             '''
             전월 토스 결제건 처리
             '''
-            pre = pd.read_parquet(DATA_PATH('toss_payment_merged'))
+            # pre = pd.read_parquet(DATA_PATH('toss_payment_merged'))
+            pre = pd.read_parquet(DATA_PATH['toss_payment_merged'])
             pre = pre[['주문번호', 'packcode', 'ins', 'PRODUCT_ID']]
             pre.rename(columns={
                 'packcode': 'PACK_CODE_',
@@ -307,7 +313,8 @@ class ConversionClassification:
     '''
     def __init__(self, df: pd.DataFrame=None, save: bool=False):
         self.basic_data = df
-        self.member_path = DATA_PATH('member_close')
+        # self.member_path = DATA_PATH('member_close')
+        self.member_path = DATA_PATH['member_close']
         self.save_data(save)
         
     def read_member(self):
@@ -393,7 +400,8 @@ class PromotionProductCount:
         self.result(save)
     
     def filter_promotion(self):
-        self.dataframe = pd.read_parquet(DATA_PATH('member_close'))
+        # self.dataframe = pd.read_parquet(DATA_PATH('member_close'))
+        self.dataframe = pd.read_parquet(DATA_PATH['member_close'])
         return self
     
     def read_category(self):
@@ -434,8 +442,10 @@ class PromotionClose:
     보험사 증빙용 무상상품 정산 마감
     '''
     def __init__(self):
-        self.member_close_table = DATA_PATH('member_close')
-        self.promotion_info_table = DATA_PATH('promotion_info')
+        # self.member_close_table = DATA_PATH('member_close')
+        # self.promotion_info_table = DATA_PATH('promotion_info')
+        self.member_close_table = DATA_PATH['member_close']
+        self.promotion_info_table = DATA_PATH['promotion_info']
         self.columns = [
             '상품정보',
             '프로그램명',
@@ -559,7 +569,8 @@ class UntactSolution:
             self.produce_result(start, end)
         
         def read_data(self):
-            return pd.read_parquet(DATA_PATH('member_list'))
+            # return pd.read_parquet(DATA_PATH('member_list'))
+            return pd.read_parquet(DATA_PATH['member_list'])
         
         def alter_type(self):
             for col in self.cols:
@@ -688,7 +699,7 @@ class Select14Days:
         
         def read(self):
             col = ['IMEI', '시리얼번호', '보험가입일', '보험해지일']
-            return pd.read_parquet(DATA_PATH('member_list'))[col]
+            return pd.read_parquet(DATA_PATH['member_list'])[col]
         
         def adjust(self):
             data = self.read()
@@ -760,7 +771,8 @@ class Select14Days_(UntactSolution):
         pass
     
     def read(self):
-        return pd.read_parquet(DATA_PATH('member_list'))
+        # return pd.read_parquet(DATA_PATH('member_list'))
+        return pd.read_parquet(DATA_PATH['member_list'])
     
     def alter_type(self):
         df = self.read()

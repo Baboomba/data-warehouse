@@ -1,14 +1,18 @@
+from config import ORACLE_ACCOUNT
 from exception.log import Logger
 import oracledb
 import pandas as pd
 from typing import List, Tuple
-from util.config_reader import ORACLE_ACCOUNT
+# from util.config_reader import ORACLE_ACCOUNT
 
 
 class DBConnection:
-    _user = ORACLE_ACCOUNT('username')
-    _password = ORACLE_ACCOUNT('password')
-    _dsn = ORACLE_ACCOUNT('dsn')
+    # _user = ORACLE_ACCOUNT('username')
+    # _password = ORACLE_ACCOUNT('password')
+    # _dsn = ORACLE_ACCOUNT('dsn')
+    _user = ORACLE_ACCOUNT['username']
+    _password = ORACLE_ACCOUNT['password']
+    _dsn = ORACLE_ACCOUNT['dsn']
     
     def __init__(self, log_level: str='error', log_path : str='db', console_log: bool=False):
         self._logger = Logger(log_level, log_path, console_log)

@@ -1,10 +1,11 @@
+from config import DATA_DIR
 from data.database import DBConnection
 from data.query import QuerySet
 import math
 import os
 import pandas as pd
 from pandas import DataFrame
-from util.config_reader import DATA_DIR
+# from util.config_reader import DATA_DIR
 
 
 class DevideCloseFile:
@@ -21,8 +22,10 @@ class DevideCloseFile:
         self.result(promotion)
     
     def read(self):
-        files = os.listdir(DATA_DIR('extracted'))
-        return pd.read_csv(fr'{DATA_DIR("extracted")}\{files[0]}', delimiter=',')
+        # files = os.listdir(DATA_DIR('extracted'))
+        # return pd.read_csv(fr'{DATA_DIR("extracted")}\{files[0]}', delimiter=',')
+        files = os.listdir(DATA_DIR['extracted'])
+        return pd.read_csv(fr'{DATA_DIR["extracted"]}\{files[0]}', delimiter=',')
     
     def select_promotion(self, promotion: bool):
         if promotion:
@@ -52,35 +55,53 @@ class DevideCloseFile:
 
 
 class Extraction:
+    '''
+    파미 전산 데이터베이스에서 데이터를 추출하는 클래스
+    '''
     def __init__(self):
         pass
     
     @staticmethod
     def get_sales_performance(start: str=None) -> DataFrame:
+        '''
+        삼성전자판매 실적
+        '''
         query = QuerySet.sales_performance(start)
         db = DBConnection()
         return db.execute_query(query)
     
     @staticmethod
     def get_techno_performance(start: str=None) -> DataFrame:
+        '''
+        테크노마트 실적
+        '''
         query = QuerySet.technomart_performance(start)
         db = DBConnection()
         return db.execute_query(query)
     
     @staticmethod
     def get_member_list(end_date: str=None) -> DataFrame:
+        '''
+        전체가입자(member_list) 추출
+        '''
         query = QuerySet.member_list(end_date)
         db = DBConnection()
         return db.execute_query(query)
     
     @staticmethod
     def get_member_close(end_date: str=None) -> DataFrame:
+        '''
+        마감데이터(member_close) 추출
+        '''
         query = QuerySet.member_close(end_date)
         db = DBConnection()
         return db.execute_query(query)
     
     @staticmethod
     def get_claim(end_date: str=None) -> DataFrame:
+        '''
+        클레임데이터 추출
+        '''
         query = QuerySet.claim(end_date)
         db = DBConnection()
         return db.execute_query(query)
